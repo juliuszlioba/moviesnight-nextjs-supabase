@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<img src="./public/img/svg/movieNight_logo.svg" width="200" height="200"/>
 
-## Getting Started
+# moviesNight website
 
-First, run the development server:
+moviesNight Website with Next.js using App Router
 
+Live website > [movies.juliuszlioba.com](https://movies.juliuszlioba.com/)
+
+## Installation
+
+Download and install
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/juliuszlioba/moviesnight-nextjs.git
+cd moviesnight-nextjs
+bun install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1. fill in enviroment variables
+```bash
+cp .env.example .env
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Before starting development <br>
+2. start database <br> (Database contains migration file and dummy data to play with)
+```bash
+bun supabase start
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Start developing or poking around!
+```bash
+bun run dev
+```
 
-## Learn More
+_!! Don't forget to shutdown database after development <br> otherwise it will keep running in the background using computer resources_
+```bash
+bun supabase stop
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Other notices
+```bash
+# if database was created empty, apply migration file with command:
+bun supabase migration up
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# generate typescript types if there are database changes:
+bun supabase gen types typescript --local > ./lib/database.types.ts
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+<!-- ## 📑 still TO-DO -->
 
-## Deploy on Vercel
+## Documentation
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+[Nets.js Docs](https://nextjs.org/docs)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+[Supabase Docs](https://supabase.com/docs)
+
+[Supabase Nextjs inplamentation Docs](https://supabase.com/docs/guides/auth/auth-helpers/nextjs)
+
+[Supabase official example](https://github.com/supabase/supabase/tree/master/examples/auth/nextjs)
