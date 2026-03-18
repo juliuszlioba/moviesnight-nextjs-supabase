@@ -7,6 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+import AddButton from "@/components/AddButton";
 import AuthButton from "@/components/AuthButton";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
@@ -34,6 +35,9 @@ export default async function Header() {
         </Link>
       </div>
       <div className="flex items-center gap-2">
+
+        <AddButton />
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant={"ghost"} className="px-3">

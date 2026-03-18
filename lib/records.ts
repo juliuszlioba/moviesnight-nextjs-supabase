@@ -1,11 +1,13 @@
 "use server";
 
+import { TMDBresultsEntity } from "./tmdb.types";
 import { createClient } from "@/lib/supabase/server";
 import { toInt } from "radash";
 
 const POSTLIMIT = toInt(process.env.NEXT_PUBLIC_POSTS_LIMIT);
 const GRIDPOSTLIMIT = toInt(process.env.NEXT_PUBLIC_POSTS_GRID_LIMIT);
-// const TMDB_API_KEY = process.env.TMDB_API_KEY;
+
+const TMDB_API_KEY = process.env.TMDB_API_KEY;
 
 export async function fetchAllRecords({
   curentPage = 1,
@@ -107,5 +109,26 @@ export async function fetchSortedSeriesRecords({
   } catch (error) {
     console.error("Database Error:", error);
     throw new Error("Failed to fetch All Posts.");
+  }
+}
+
+export async function fetchTmdbSearchResults({
+  searchQuery,
+}: {
+  searchQuery: string;
+}) {
+  const tmdbApiUrl = `https://api.themoviedb.org/3/search/multi?language=en-US&api_key=${TMDB_API_KEY}&query=${searchQuery}`;
+
+  try {
+    const data = await fetch(tmdbApiUrl)
+      .then((response) => response.json())
+      .catch((error) => {
+        return { status: error };
+      });
+
+    return data.results as TMDBresultsEntity[];
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch Post Metadata.");
   }
 }

@@ -1,9 +1,9 @@
 const slugify = (string: string) => {
-  var a =
+  const a =
     "àáâäæãåāăąçćčđďèéêëēėęěğǵḧîïíīįìłḿñńǹňôöòóœøōõṕŕřßśšşșťțûüùúūǘůűųẃẍÿýžźż·/_,:;";
-  var b =
+  const b =
     "aaaaaaaaaacccddeeeeeeeegghiiiiiilmnnnnooooooooprrsssssttuuuuuuuuuwxyyzzz------";
-  var p = new RegExp(a.split("").join("|"), "g");
+  const p = new RegExp(a.split("").join("|"), "g");
 
   string = string.toString();
   string = string.toLowerCase();
@@ -13,8 +13,8 @@ const slugify = (string: string) => {
   string = string.replace(/ß/g, "ss");
   string = string.replace(/\s+/g, "-"); // Replace spaces with -
   //string = string.replace(p, c => b.charAt(a.indexOf(c)));
-  for (var i: any = 0, l = a.length; i < l; i++) {
-    string = string.replace(p, b.charAt(a.indexOf(i)));
+  for (let i = 0, l = a.length; i < l; i++) {
+    string = string.replace(p, b.charAt(a.indexOf(i.toString())));
   } // Replace special characters
   string = string.replace(/&/g, "-und-"); // Replace & with 'and'
   string = string.replace(/[^\w\-]+/g, ""); // Remove all non-word characters

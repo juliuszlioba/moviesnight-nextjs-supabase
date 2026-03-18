@@ -1,11 +1,12 @@
 "use client";
 
+import { MessageCircle, ThumbsUp } from "lucide-react";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "../ui/button";
 import { Database } from "@/lib/database.types";
 import Image from "next/image";
 import Link from "next/link";
-import { MessageCircle } from "lucide-react";
 import { StarRating } from "../StarRating";
 import { Transition } from "@headlessui/react";
 import type { User } from "@supabase/supabase-js";
@@ -42,8 +43,16 @@ export default function RecordListItem({
               />
               {listRating && (
                 <div className="absolute top-3 -left-2 -rotate-6">
-                  <span className="rounded-md px-3 py-1 bg-primary text-white">
+                  <span className="rounded-md px-3 py-1 bg-primary text-white shadow-primary/50 shadow-lg">
                     #{record.sort_order_anime}
+                  </span>
+                </div>
+              )}
+
+              {listBadge && (record.sort_order_movie || record.sort_order_series) && (
+                <div className="absolute bottom-3 -left-2 -rotate-6">
+                  <span className="rounded-md p-1.5 text-white flex items-center bg-yellow-400 shadow-yellow-500/50 shadow-lg">
+                    <ThumbsUp strokeWidth={1.5} className="text-background" />
                   </span>
                 </div>
               )}
@@ -61,7 +70,7 @@ export default function RecordListItem({
               </div>
               <p className="text-sm text-gray-400">{record.year}</p>
 
-              {listBadge && (
+              {listBadge && record.sort_order_anime && (
                 <div className="py-1">
                   {record.sort_order_anime && (
                     <div className="text-sm text-gray-400">
