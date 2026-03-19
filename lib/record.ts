@@ -1,7 +1,11 @@
 "use server";
 
+import * as z from "zod";
+
+import { RecordEditFormSchema } from "@/components/records/record-edit";
 import { TMDBresultsEntity } from "./tmdb.types";
 import { createClient } from "./supabase/server";
+import { formatISO } from "date-fns";
 import { revalidatePath } from "next/cache";
 import slugify from "./slugify";
 import { toInt } from "radash";
@@ -45,7 +49,6 @@ export async function fetchRecordMetadata({
   mediatype: string;
   tmdbid: number;
 }) {
-
   if (!tmdbid) {
     throw new Error("Failed to fetch Post Metadata.");
   }
@@ -182,7 +185,78 @@ export async function addRecord({
       redirectTo: `/${dataLoad.mediatype}/${dataLoad.year}/${dataLoad.slug}`,
     };
   } catch (error) {
-    console.log("Database Error ", error);
+    console.log("Database Error. ", error);
+    return { status: "error" };
+  }
+}
+
+export async function updateRecord({
+  formValues,
+}: {
+  formValues: z.infer<typeof RecordEditFormSchema>;
+}): Promise<Status> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { status: "unauthorised" };
+  }
+
+  try {
+    //await new Promise((resolve) => setTimeout(resolve, 3000)) //!
+    const { error: supabaseError } = await supabase
+      .from("records")
+      .update({
+        rating: toInt(formValues.rating),
+        recommendation: formValues.recommendation,
+        review: formValues.review,
+        watchedat: formatISO(new Date(formValues.watchedAt)),
+        updatedat: formatISO(new Date()),
+      })
+      .eq("id", formValues.id)
+      .select()
+      .single();
+    if (supabaseError) {
+      throw new Error("error");
+    }
+
+    revalidatePath("/[mediatype]/[year]/[slug]", "page");
+    revalidatePath("/", "page");
+
+    return { status: "success" };
+  } catch (error) {
+    console.log("Database Error. ", error);
+    return { status: "error" };
+  }
+}
+
+export async function deleteRecord({ id }: { id: number }): Promise<Status> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { status: "unauthorised" };
+  }
+
+  try {
+    const { error: supabaseError } = await supabase
+      .from("records")
+      .delete()
+      .eq("id", id);
+
+    if (supabaseError) {
+      throw new Error("error");
+    }
+
+    revalidatePath("/", "page");
+
+    return { status: "success" };
+  } catch (error) {
+    console.log("Database Error: ", error);
     return { status: "error" };
   }
 }

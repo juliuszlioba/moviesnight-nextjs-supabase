@@ -1,25 +1,39 @@
-import { CalendarCheck, Clock, ThumbsUp } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Button, buttonVariants } from "../ui/button";
+import { CalendarCheck, Clock, FileEdit, ThumbsUp, Trash } from "lucide-react";
 import { fetchRecordMetadata, readRecord } from "@/lib/record";
 import { format, isFuture } from "date-fns";
 
 import Image from "next/image";
+import Link from "next/link";
+import RecordDeleteButton from "./record-delete";
 import { StarRating } from "../StarRating";
-import { buttonVariants } from "../ui/button";
 import { cn } from "@/lib/utils";
+import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import { toInt } from "radash";
-
-// import type { User } from '@supabase/supabase-js'
 
 export default async function RecordItem({
   year,
   slug,
-  // auth = null,
 }: {
   year: string;
   slug: string;
-  // auth?: User | null
 }) {
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getClaims();
+  const user = data?.claims;
+
   const { record } = await readRecord({
     slug: slug,
     year: toInt(year),
@@ -51,7 +65,7 @@ export default async function RecordItem({
           )}
         </div>
         <div className="flex flex-col">
-          <h2 className="flex items-start justify-between gap-2 pt-4 text-2xl md:justify-start">
+          <h2 className="flex items-start justify-between gap-2 pt-4 text-2xl md:justify-start font-light">
             {record?.title}
           </h2>
           <p className="mb-6 text-sm text-gray-400">
@@ -126,36 +140,11 @@ export default async function RecordItem({
         )}
 
         {(record.sort_order_movie || record.sort_order_series) && (
-					<div className="flex flex-wrap items-center justify-start gap-2 border-t-2 border-dashed border-muted pt-4">
-						<ThumbsUp strokeWidth={1.5} className="text-yellow-400" />
-						Highly recommended to see!
-					</div>
-				)}
-
-        {/* {post.linkanime && listposition && (
-					<div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-2 border-t-2 border-dashed border-muted pt-4">
-						<div className="flex items-center gap-1">
-							<Link
-								href="/anime"
-								className="text-white underline decoration-primary/50 decoration-2 underline-offset-2 hover:text-primary"
-							>
-								Anime Top List
-							</Link>{' '}
-							position
-							<span className="ml-1 inline-flex h-9 items-center rounded-md border-2 border-primary px-3 py-1">
-								{listposition}
-							</span>
-						</div>
-
-						{auth && auth.role === 'authenticated' && (
-							<EditPostPosition
-								id={post.id}
-								listposition={listposition}
-								list={'list_anime_top'}
-							/>
-						)}
-					</div>
-				)} */}
+          <div className="flex flex-wrap items-center justify-start gap-2 border-t-2 border-dashed border-muted pt-4">
+            <ThumbsUp strokeWidth={1.5} className="text-yellow-400" />
+            Highly recommended to see!
+          </div>
+        )}
       </div>
 
       <div className="flex items-center justify-between border-t-2 border-dashed border-muted py-4">
@@ -169,54 +158,49 @@ export default async function RecordItem({
           </div>
         )}
 
-        {/* {auth && auth.role === 'authenticated' && (
-					<div className="flex gap-2">
-						<AlertDialog>
-							<AlertDialogTrigger asChild>
-								<Button
-									variant={'ghost'}
-									className="gap-2 text-red-500 text-opacity-40"
-								>
-									<Trash strokeWidth={1.5} />
-									Delete
-								</Button>
-							</AlertDialogTrigger>
-							<AlertDialogContent>
-								<AlertDialogHeader>
-									<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-									<AlertDialogDescription>
-										This action cannot be undone. This will{' '}
-										<span className="text-red-500">permanently</span> delete
-										Post.
-									</AlertDialogDescription>
-								</AlertDialogHeader>
-								<AlertDialogFooter className="flex items-center">
-									<AlertDialogCancel>Cancel</AlertDialogCancel>
-									<PostDeleteButton
-										id={post.id}
-										postMeta={{
-											mediaType: post.mediatype,
-											linkanime: post.linkanime,
-											recommended: post.recommended,
-										}}
-									/>
-								</AlertDialogFooter>
-							</AlertDialogContent>
-						</AlertDialog>
+        {user && (
+          <div className="flex gap-2">
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant={"ghost"}
+                  className="gap-2 text-red-500 text-opacity-40"
+                >
+                  <Trash strokeWidth={1.5} />
+                  Delete
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will{" "}
+                    <span className="text-red-500">permanently</span> delete
+                    Post.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter className="flex items-center">
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <RecordDeleteButton id={record.id} />
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
 
-						<Link
-							href={`/${record.mediatype}/${record.year}/${record.slug}/edit`}
-							className={cn(
-								buttonVariants({
-									variant: 'ghost',
-								}),
-								'gap-2'
-							)}
-						>
-							<FileEdit strokeWidth={1.5} className="h-6 w-6" /> Edit
-						</Link>
-					</div>
-				)} */}
+            <div className="flex gap-2">
+              <Link
+                href={`/${record.mediatype}/${record.year}/${record.slug}/edit`}
+                className={cn(
+                  buttonVariants({
+                    variant: "default",
+                  }),
+                  "gap-2",
+                )}
+              >
+                <FileEdit strokeWidth={1.5} /> Edit
+              </Link>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );
