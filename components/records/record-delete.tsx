@@ -1,7 +1,7 @@
 'use client'
 
 import { Button, buttonVariants } from '../ui/button'
-import { Status, deleteRecord } from '@/lib/record'
+import { Status, deleteRecord } from '@/lib/actions'
 
 import { Spinner } from '../ui/spinner'
 import { cn } from '@/lib/utils'

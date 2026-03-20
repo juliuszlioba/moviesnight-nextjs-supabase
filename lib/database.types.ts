@@ -192,7 +192,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      add_to_sort: {
+        Args: { media_type: string; record_id: number }
+        Returns: undefined
+      }
+      remove_from_sort: {
+        Args: { media_type: string; record_id: number }
+        Returns: undefined
+      }
+      update_single_sort_order: {
+        Args: { media_type: string; new_position: number; record_id: number }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

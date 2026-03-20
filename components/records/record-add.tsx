@@ -1,7 +1,7 @@
 'use client'
 
 import { Button, buttonVariants } from '../ui/button'
-import { Status, addRecord } from '@/lib/record'
+import { Status, addRecord } from '@/lib/actions'
 
 import { PlusCircleIcon } from 'lucide-react'
 import { Spinner } from '../ui/spinner'

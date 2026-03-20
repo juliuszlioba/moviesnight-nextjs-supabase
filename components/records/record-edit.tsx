@@ -2,6 +2,7 @@
 
 import * as z from "zod";
 
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { ChevronDownIcon, Save } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { Field, FieldError, FieldGroup } from "../ui/field";
@@ -18,12 +19,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Status, updateRecord } from "@/lib/record";
+import { Status, updateRecord } from "@/lib/actions";
 
 import { Button } from "../ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Database } from "@/lib/database.types";
 import { Input } from "../ui/input";
+import RecordListItemSortOrderForm from "./record-list-item-sort-order";
 import { Spinner } from "../ui/spinner";
 import { Textarea } from "../ui/textarea";
 import { format } from "date-fns";
@@ -215,23 +217,51 @@ export function RecordEditForm({
           />
         </FieldGroup>
 
-        <div className="flex">
+
+      </form>
+
+      <Card>
+
+        <CardHeader>
+          <CardTitle>Top List Sort Order</CardTitle>
+        </CardHeader>
+
+        <CardContent className="space-y-4">
+          {record.mediatype === "movie" && (
+            <RecordListItemSortOrderForm
+              id={record.id}
+              mediaType={record.mediatype}
+            />
+          )}
+          {record.mediatype === "series" && (
+            <div className="flex gap-2">
+              <RecordListItemSortOrderForm
+                id={record.id}
+                mediaType={"anime"}
+                currentSortOrder={record.sort_order_anime}
+              />
+              <RecordListItemSortOrderForm
+                id={record.id}
+                mediaType={"series"}
+                currentSortOrder={record.sort_order_series}
+              />
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
 
-        <Button
+      <div className="flex">
+          <Button
             type={!loading ? "submit" : "button"}
             variant={"default"}
             className="gap-2"
             form="form-rhf-edit-record"
           >
-            <Save strokeWidth={1.5} /> {!loading ? (
-              <span>Save</span>
-            ) : (
-              <Spinner />
-            ) }
+            <Save strokeWidth={1.5} />{" "}
+            {!loading ? <span>Save</span> : <Spinner />}
           </Button>
         </div>
-      </form>
     </div>
   );
 }

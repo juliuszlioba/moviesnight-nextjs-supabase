@@ -1,6 +1,5 @@
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -11,7 +10,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button, buttonVariants } from "../ui/button";
 import { CalendarCheck, Clock, FileEdit, ThumbsUp, Trash } from "lucide-react";
-import { fetchRecordMetadata, readRecord } from "@/lib/record";
+import { fetchRecordMetadata, readRecord } from "@/lib/records";
 import { format, isFuture } from "date-fns";
 
 import Image from "next/image";

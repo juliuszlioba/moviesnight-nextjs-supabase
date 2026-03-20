@@ -132,3 +132,63 @@ export async function fetchTmdbSearchResults({
     throw new Error("Failed to fetch Post Metadata.");
   }
 }
+
+export async function readRecord({
+  slug,
+  year,
+}: {
+  slug: string;
+  year: number;
+}) {
+  const supabase = await createClient();
+
+  try {
+    const { data: record } = await supabase
+      .from("records")
+      .select("*")
+      .eq("year", toInt(year))
+      .eq("slug", `${slug}`)
+      .limit(1)
+      .single();
+    return { record };
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch Post.");
+  }
+}
+
+export async function fetchRecordMetadata({
+  mediatype,
+  tmdbid,
+}: {
+  mediatype: string;
+  tmdbid: number;
+}) {
+  if (!tmdbid) {
+    throw new Error("Failed to fetch Post Metadata.");
+  }
+
+  mediatype = mediatype === "movie" ? "movie" : "tv";
+
+  const tmdbApiUrl = `https://api.themoviedb.org/3/${mediatype}/${tmdbid}?api_key=${TMDB_API_KEY}`;
+
+  try {
+    const data = await fetch(tmdbApiUrl)
+      .then((response) => response.json())
+      .then((data) => {
+        return {
+          voteAvarage: data?.vote_average || "",
+          runtime: data?.runtime || "",
+          overview: data?.overview || "",
+          imdbId: data?.imdb_id || "",
+          seasons: data?.number_of_seasons || "",
+          episodes: data?.number_of_episodes || "",
+        };
+      });
+
+    return { data };
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch Post Metadata.");
+  }
+}

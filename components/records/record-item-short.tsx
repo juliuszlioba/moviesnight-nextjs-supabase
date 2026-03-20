@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { RecordEditForm } from "./record-edit";
 import { notFound } from "next/navigation";
-import { readRecord } from "@/lib/record";
+import { readRecord } from "@/lib/records";
 import { toInt } from "radash";
 
 // import type { User } from '@supabase/supabase-js'
