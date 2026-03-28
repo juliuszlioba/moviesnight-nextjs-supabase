@@ -99,7 +99,7 @@ export default function RecordListItemSortOrderForm({
     return;
   }
 
-  if (currentSortOrder === null) {
+  if (currentSortOrder === null || currentSortOrder === undefined) {
     if (loading) {
       return <Spinner />;
     }
@@ -110,6 +110,8 @@ export default function RecordListItemSortOrderForm({
       </Button>
     );
   }
+
+
 
   return (
     <>

@@ -1,6 +1,7 @@
 "use server";
 
 import { TMDBresultsEntity } from "./tmdb.types";
+import { count } from "console";
 import { createClient } from "@/lib/supabase/server";
 import { toInt } from "radash";
 
@@ -31,6 +32,36 @@ export async function fetchAllRecords({
   } catch (error) {
     console.error("Database Error:", error);
     throw new Error("Failed to fetch All Posts.");
+  }
+}
+
+export async function searchRecords({
+	searchQuery,
+	curentPage = 1,
+}: {
+	searchQuery: string | undefined
+	curentPage?: number
+}) {
+  const postLimit = POSTLIMIT;
+  const supabase = await createClient();
+
+  if (!searchQuery) {
+    return { posts: undefined, count: 0 };
+  }
+
+  try {
+    // await new Promise((resolve) => setTimeout(resolve, 3000)) //!DEV TEST
+    const { data: posts, count } = await supabase
+      .from("records")
+      .select("*", { count: "exact" })
+      .ilike("title", `%${searchQuery}%`)
+      .order("watchedat", { ascending: false })
+      .range(postLimit * curentPage - postLimit, postLimit * curentPage - 1);
+
+    return { posts, count: count || 0 };
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch Posts.");
   }
 }
 

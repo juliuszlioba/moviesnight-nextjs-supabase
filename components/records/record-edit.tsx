@@ -231,6 +231,7 @@ export function RecordEditForm({
             <RecordListItemSortOrderForm
               id={record.id}
               mediaType={record.mediatype}
+              currentSortOrder={record.sort_order_movie}
             />
           )}
           {record.mediatype === "series" && (
