@@ -4,6 +4,7 @@ import * as z from "zod";
 
 import { Controller, useForm } from "react-hook-form";
 import { Field, FieldError, FieldGroup } from "@/components/ui/field";
+import { Save, Trash2 } from "lucide-react";
 import {
   addRecordToSortOrder,
   moveSingleRecordSortOrder,
@@ -105,63 +106,62 @@ export default function RecordListItemSortOrderForm({
     }
 
     return (
-      <Button onClick={() => handleAdd()}>
-        Add to TOP {capitalize(mediaType)} list
-      </Button>
+      <div>
+        <Button onClick={() => handleAdd()}>
+          Add to TOP {capitalize(mediaType)} list
+        </Button>
+      </div>
     );
   }
 
-
-
   return (
-    <>
-      <div className="w-full">
-        <form id="form-rhf-sort-order" onSubmit={form.handleSubmit(onSubmit)}>
-          <FieldGroup className="flex gap-2 flex-row items-center">
-            <div className="shrink-0">{capitalize(mediaType)} list order:</div>
+    <div>
+      <form id="form-rhf-sort-order" onSubmit={form.handleSubmit(onSubmit)}>
+        <FieldGroup className="flex gap-2 flex-row items-center">
+          <div className="shrink-0">{capitalize(mediaType)} list:</div>
 
-            <Controller
-              name="sortOrder"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid} className="w-auto">
-                  <Input
-                    {...field}
-                    id="form-rhf-sort-order-sort-order"
-                    type="number"
-                    aria-invalid={fieldState.invalid}
-                    placeholder="Postion"
-                    autoComplete="off"
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-
-            {loading ? (
-              <Spinner />
-            ) : (
-              <>
-                <Field orientation="horizontal" className="w-auto">
-                  <Button type="submit" form="form-rhf-sort-order">
-                    <span>Save</span>
-                  </Button>
-                </Field>
-
-                <Button
-                  type="button"
-                  variant="destructive"
-                  onClick={() => handleRemove()}
-                >
-                  Remove
-                </Button>
-              </>
+          <Controller
+            name="sortOrder"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid} className="w-auto">
+                <Input
+                  {...field}
+                  id="form-rhf-sort-order-sort-order"
+                  type="number"
+                  aria-invalid={fieldState.invalid}
+                  placeholder="Postion"
+                  autoComplete="off"
+                  className="w-full"
+                />
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
             )}
-          </FieldGroup>
-        </form>
-      </div>
-    </>
+          />
+
+          {loading ? (
+            <Spinner />
+          ) : (
+            <>
+              <Field orientation="horizontal" className="w-auto">
+                <Button type="submit" form="form-rhf-sort-order">
+                  <Save />
+                </Button>
+              </Field>
+
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={() => handleRemove()}
+              >
+                <Trash2 />
+              </Button>
+            </>
+          )}
+        </FieldGroup>
+      </form>
+    </div>
   );
 }

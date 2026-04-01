@@ -2,8 +2,18 @@
 
 import * as z from "zod";
 
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { ChevronDownIcon, Save } from "lucide-react";
+import { ChevronDownIcon, Save, Trash } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { Field, FieldError, FieldGroup } from "../ui/field";
 import {
@@ -25,6 +35,7 @@ import { Button } from "../ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Database } from "@/lib/database.types";
 import { Input } from "../ui/input";
+import RecordDeleteButton from "./record-delete";
 import RecordListItemSortOrderForm from "./record-list-item-sort-order";
 import { Spinner } from "../ui/spinner";
 import { Textarea } from "../ui/textarea";
@@ -191,7 +202,7 @@ export function RecordEditForm({
                     >
                       {/* Use field.value instead of date */}
                       {field.value ? (
-                        format(field.value, "PPP")
+                        format(field.value, "yyyy-MM-dd")
                       ) : (
                         <span>Watch Date</span>
                       )}
@@ -216,12 +227,9 @@ export function RecordEditForm({
             )}
           />
         </FieldGroup>
-
-
       </form>
 
       <Card>
-
         <CardHeader>
           <CardTitle>Top List Sort Order</CardTitle>
         </CardHeader>
@@ -235,7 +243,7 @@ export function RecordEditForm({
             />
           )}
           {record.mediatype === "series" && (
-            <div className="flex gap-2">
+            <div className="flex gap-4 flex-col">
               <RecordListItemSortOrderForm
                 id={record.id}
                 mediaType={"anime"}
@@ -251,18 +259,42 @@ export function RecordEditForm({
         </CardContent>
       </Card>
 
+      <div className="flex gap-2 justify-between">
+        <Button
+          type={!loading ? "submit" : "button"}
+          variant={"default"}
+          className="gap-2"
+          form="form-rhf-edit-record"
+        >
+          <Save strokeWidth={1.5} />{" "}
+          {!loading ? <span>Save</span> : <Spinner />}
+        </Button>
 
-      <div className="flex">
-          <Button
-            type={!loading ? "submit" : "button"}
-            variant={"default"}
-            className="gap-2"
-            form="form-rhf-edit-record"
-          >
-            <Save strokeWidth={1.5} />{" "}
-            {!loading ? <span>Save</span> : <Spinner />}
-          </Button>
-        </div>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              variant={"destructive"}
+              className="gap-2 text-red-500 text-opacity-40"
+            >
+              <Trash strokeWidth={1.5} />
+              Delete
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will{" "}
+                <span className="text-red-500">permanently</span> delete Post.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="flex items-center">
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <RecordDeleteButton id={record.id} />
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
     </div>
   );
 }

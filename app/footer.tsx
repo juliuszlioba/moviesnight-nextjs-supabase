@@ -15,8 +15,8 @@ export default function SiteFooter() {
 				/>
 			</div>
 
-			<div className="flex items-center justify-center gap-4">
-				<p>
+			<div className="flex items-center justify-center gap-4 flex-wrap">
+				<div className='w-auto'>
 					<a
 						href="https://juliuszlioba.com"
 						rel="noopener"
@@ -24,13 +24,21 @@ export default function SiteFooter() {
 					>
 						{`${new Date().getFullYear()}`} &copy; juliuszlioba.com
 					</a>
-				</p>
+				</div>
+				<div className='flex gap-4'>
 				<Link
 					href="/about"
 					className="rounded-full px-2 py-1 hover:text-primary focus:ring-2 focus:ring-primary focus-visible:outline-none"
 				>
 					About
 				</Link>
+				<Link
+					href="privacy"
+					className="rounded-full px-2 py-1 hover:text-primary focus:ring-2 focus:ring-primary focus-visible:outline-none"
+				>
+					Privacy
+				</Link>
+				</div>
 			</div>
 		</footer>
 	)

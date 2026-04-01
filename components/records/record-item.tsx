@@ -1,22 +1,11 @@
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Button, buttonVariants } from "../ui/button";
-import { CalendarCheck, Clock, FileEdit, ThumbsUp, Trash } from "lucide-react";
+import { CalendarCheck, Clock, FileEdit, ThumbsUp } from "lucide-react";
 import { fetchRecordMetadata, readRecord } from "@/lib/records";
 import { format, isFuture } from "date-fns";
 
 import Image from "next/image";
 import Link from "next/link";
-import RecordDeleteButton from "./record-delete";
 import { StarRating } from "../StarRating";
+import { buttonVariants } from "../ui/button";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
@@ -146,58 +135,30 @@ export default async function RecordItem({
         )}
       </div>
 
-      <div className="flex items-center justify-between border-t-2 border-dashed border-muted py-4">
+      <div className="flex justify-between border-t-2 border-dashed border-muted py-4">
         {record.watchedat && (
-          <div className="flex gap-2" suppressHydrationWarning>
+          <div className="flex items-center gap-2">
             <CalendarCheck strokeWidth={1.5} />
             {isFuture(new Date(record.watchedat))
               ? "Will finish at"
-              : "Last watch"}{" "}
+              : "Watched at"}{" "}
             {format(new Date(record.watchedat), "yyyy-MM-dd")}
           </div>
         )}
 
         {user && (
           <div className="flex gap-2">
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button
-                  variant={"ghost"}
-                  className="gap-2 text-red-500 text-opacity-40"
-                >
-                  <Trash strokeWidth={1.5} />
-                  Delete
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action cannot be undone. This will{" "}
-                    <span className="text-red-500">permanently</span> delete
-                    Post.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter className="flex items-center">
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <RecordDeleteButton id={record.id} />
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-
-            <div className="flex gap-2">
-              <Link
-                href={`/${record.mediatype}/${record.year}/${record.slug}/edit`}
-                className={cn(
-                  buttonVariants({
-                    variant: "default",
-                  }),
-                  "gap-2",
-                )}
-              >
-                <FileEdit strokeWidth={1.5} /> Edit
-              </Link>
-            </div>
+            <Link
+              href={`/${record.mediatype}/${record.year}/${record.slug}/edit`}
+              className={cn(
+                buttonVariants({
+                  variant: "default",
+                }),
+                "gap-2",
+              )}
+            >
+              <FileEdit strokeWidth={1.5} /> Edit
+            </Link>
           </div>
         )}
       </div>
