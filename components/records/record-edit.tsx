@@ -260,16 +260,6 @@ export function RecordEditForm({
       </Card>
 
       <div className="flex gap-2 justify-between">
-        <Button
-          type={!loading ? "submit" : "button"}
-          variant={"default"}
-          className="gap-2"
-          form="form-rhf-edit-record"
-        >
-          <Save strokeWidth={1.5} />{" "}
-          {!loading ? <span>Save</span> : <Spinner />}
-        </Button>
-
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button
@@ -294,6 +284,16 @@ export function RecordEditForm({
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        <Button
+          type={!loading ? "submit" : "button"}
+          variant={"default"}
+          className="gap-2"
+          form="form-rhf-edit-record"
+        >
+          <Save strokeWidth={1.5} />{" "}
+          {!loading ? <span>Save</span> : <Spinner />}
+        </Button>
       </div>
     </div>
   );
