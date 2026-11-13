@@ -23,8 +23,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 const formSchema = z.object({
   sortOrder: z.coerce
     .number({
-      required_error: "Sort order is required",
-      invalid_type_error: "Sort order must be a number",
+      error: (issue) =>
+        issue.input === undefined || issue.input === ""
+          ? "Sort order is required"
+          : "Sort order must be a number",
     })
     .int("Must be a whole number")
     .min(0, "Must be 0 or greater"),
@@ -39,7 +41,11 @@ export default function RecordListItemSortOrderForm({
   mediaType: "anime" | "movie" | "series";
   currentSortOrder?: number | null;
 }) {
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<
+    z.input<typeof formSchema>,
+    unknown,
+    z.output<typeof formSchema>
+  >({
     resolver: zodResolver(formSchema),
     defaultValues: {
       sortOrder: currentSortOrder || 0,
@@ -49,7 +55,7 @@ export default function RecordListItemSortOrderForm({
 
   const [loading, setLoading] = useState(false);
 
-  async function onSubmit(data: z.infer<typeof formSchema>) {
+  async function onSubmit(data: z.output<typeof formSchema>) {
     setLoading(true);
     const { status } = await moveSingleRecordSortOrder({
       recordId: id,
@@ -93,7 +99,7 @@ export default function RecordListItemSortOrderForm({
       toast.success(`Removed from ${mediaType} list`);
       router.refresh();
     } else {
-      toast.error("Error adding record to sort order list");
+      toast.error("Error removing record from sort order list");
     }
 
     setLoading(false);
@@ -127,10 +133,11 @@ export default function RecordListItemSortOrderForm({
               <Field data-invalid={fieldState.invalid} className="w-auto">
                 <Input
                   {...field}
+                  value={field.value as number}
                   id="form-rhf-sort-order-sort-order"
                   type="number"
                   aria-invalid={fieldState.invalid}
-                  placeholder="Postion"
+                  placeholder="Position"
                   autoComplete="off"
                   className="w-full"
                 />
