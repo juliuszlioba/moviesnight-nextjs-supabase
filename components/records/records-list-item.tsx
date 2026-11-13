@@ -9,19 +9,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { StarRating } from "../StarRating";
 import { Transition } from "@headlessui/react";
-import type { User } from "@supabase/supabase-js";
 import { useState } from "react";
 
 export default function RecordListItem({
   record,
   listRating = false,
   listBadge = true,
-  // auth = null,
 }: {
   record: Database["public"]["Tables"]["records"]["Row"];
   listRating?: boolean;
   listBadge?: boolean;
-  auth?: User | null;
 }) {
   const [reviewOpen, setOpenReview] = useState(false);
 
@@ -33,14 +30,18 @@ export default function RecordListItem({
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-6">
           <div className="flex gap-4">
             <div className="relative flex shrink-0 flex-col">
-              <Image
-                src={`https://image.tmdb.org/t/p/w200${record.poster}`}
-                alt={record.title || "poster"}
-                width={200}
-                height={300}
-                className="h-52 w-36 shrink-0 overflow-hidden rounded-lg bg-muted"
-                unoptimized={true}
-              />
+              {record.poster ? (
+                <Image
+                  src={`https://image.tmdb.org/t/p/w200${record.poster}`}
+                  alt={record.title || "poster"}
+                  width={200}
+                  height={300}
+                  className="h-52 w-36 shrink-0 overflow-hidden rounded-lg bg-muted"
+                  unoptimized={true}
+                />
+              ) : (
+                <div className="h-52 w-36 shrink-0 rounded-lg bg-muted" />
+              )}
               {listRating && (
                 <div className="absolute top-3 -left-2 -rotate-6">
                   <span className="rounded-md px-3 py-1 bg-primary text-white shadow-primary/50 shadow-lg">

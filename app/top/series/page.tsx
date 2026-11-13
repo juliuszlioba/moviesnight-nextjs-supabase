@@ -1,7 +1,8 @@
+import { parsePage } from "@/lib/config";
 import Header from "../../header";
 import RecordsListTopSeries from "@/components/records/records-list-top-series";
 
-export default async function AnimePage({
+export default async function TopSeriesPage({
   searchParams,
 }: {
   searchParams?: Promise<{
@@ -9,7 +10,7 @@ export default async function AnimePage({
   }>;
 }) {
   const { page } = (await searchParams) || {};
-  const currentPage = Number(page) || 1;
+  const currentPage = parsePage(page);
 
   return (
     <div>

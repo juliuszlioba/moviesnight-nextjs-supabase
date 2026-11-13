@@ -11,7 +11,11 @@ import { Input } from "@/components/ui/input";
 import { SubmitButton } from "./submit-button";
 import { signIn } from "./actions";
 
-export default function Login() {
+export default async function Login(props: {
+  searchParams?: Promise<{ error?: string }>;
+}) {
+  const { error } = (await props.searchParams) || {};
+
   return (
     <div className="flex w-full items-center justify-center my-auto">
       <div className="w-full max-w-sm">
@@ -21,6 +25,11 @@ export default function Login() {
             <CardDescription>
               Enter your email and password below to login
             </CardDescription>
+            {error && (
+              <p role="alert" className="text-sm text-destructive">
+                Invalid email or password.
+              </p>
+            )}
           </CardHeader>
 
           <CardContent>
@@ -30,6 +39,7 @@ export default function Login() {
                   <Input
                     id="email"
                     type="email"
+                    autoComplete="username"
                     name="email"
                     placeholder="email"
                     required
@@ -42,7 +52,7 @@ export default function Login() {
                     type="password"
                     name="password"
                     placeholder="password"
-                    autoComplete="password"
+                    autoComplete="current-password"
                     required
                   />
                 </Field>

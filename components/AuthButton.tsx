@@ -8,9 +8,8 @@ import { redirect } from "next/navigation";
 export default async function AuthButton() {
   const supabase = await createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data } = await supabase.auth.getClaims();
+  const user = data?.claims;
 
   const signOut = async () => {
     "use server";

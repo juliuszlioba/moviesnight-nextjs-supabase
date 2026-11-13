@@ -1,24 +1,21 @@
-const slugify = (string: string) => {
-  const a =
-    "àáâäæãåāăąçćčđďèéêëēėęěğǵḧîïíīįìłḿñńǹňôöòóœøōõṕŕřßśšşșťțûüùúūǘůűųẃẍÿýžźż·/_,:;";
-  const b =
-    "aaaaaaaaaacccddeeeeeeeegghiiiiiilmnnnnooooooooprrsssssttuuuuuuuuuwxyyzzz------";
-  const p = new RegExp(a.split("").join("|"), "g");
+const from =
+  "àáâäæãåāăąçćčđďèéêëēėęěğǵḧîïíīįìłḿñńǹňôöòóœøōõṕŕřßśšşșťțûüùúūǘůűųẃẍÿýžźż·/_,:;";
+const to =
+  "aaaaaaaaaacccddeeeeeeeegghiiiiiilmnnnnooooooooprrsssssttuuuuuuuuuwxyyzzz------";
+const specialChars = new RegExp(`[${from}]`, "g");
 
-  string = string.toString();
-  string = string.toLowerCase();
+const slugify = (input: string) => {
+  let string = input.toString().toLowerCase();
   string = string.replace(/ä/g, "ae");
   string = string.replace(/ö/g, "oe");
   string = string.replace(/ü/g, "ue");
   string = string.replace(/ß/g, "ss");
   string = string.replace(/\s+/g, "-"); // Replace spaces with -
-  //string = string.replace(p, c => b.charAt(a.indexOf(c)));
-  for (let i = 0, l = a.length; i < l; i++) {
-    string = string.replace(p, b.charAt(a.indexOf(i.toString())));
-  } // Replace special characters
-  string = string.replace(/&/g, "-und-"); // Replace & with 'and'
-  string = string.replace(/[^\w\-]+/g, ""); // Remove all non-word characters
-  string = string.replace(/\-\-+/g, "-"); // Replace multiple - with single -
+  // Transliterate accented / special characters (e.g. é -> e)
+  string = string.replace(specialChars, (c) => to.charAt(from.indexOf(c)));
+  string = string.replace(/&/g, "-und-"); // Replace & (kept as "und" to match existing slugs)
+  string = string.replace(/[^\w-]+/g, ""); // Remove all non-word characters
+  string = string.replace(/--+/g, "-"); // Replace multiple - with single -
   string = string.replace(/^-+/, ""); // Trim - from start of text
   string = string.replace(/-+$/, ""); // Trim - from end of text
 

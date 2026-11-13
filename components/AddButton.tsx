@@ -4,12 +4,11 @@ import { buttonVariants } from "./ui/button";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/server";
 
-export default async function AuthButton() {
+export default async function AddButton() {
   const supabase = await createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data } = await supabase.auth.getClaims();
+  const user = data?.claims;
 
   return user ? (
     <Link

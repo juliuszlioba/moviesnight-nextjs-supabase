@@ -12,7 +12,7 @@ import { SearchIcon } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 const formSchema = z.object({
-  search: z.string().min(3, {
+  search: z.string().trim().min(3, {
     message: "At least 3 characters.",
   }),
 });
@@ -20,23 +20,22 @@ const formSchema = z.object({
 export default function Search({ placeholder }: { placeholder: string }) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const { replace } = useRouter();
+  const { push } = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      search: "",
+      // Keep the current query visible after navigation / reload
+      search: searchParams.get("search") ?? "",
     },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     const params = new URLSearchParams(searchParams);
-    if (values.search) {
-      params.set("search", values.search);
-    } else {
-      params.delete("query");
-    }
-    replace(`${pathname}?${params.toString()}`);
+    params.set("search", values.search);
+    // A new search always starts on the first page
+    params.delete("page");
+    push(`${pathname}?${params.toString()}`);
   }
 
   return (
@@ -47,7 +46,13 @@ export default function Search({ placeholder }: { placeholder: string }) {
           control={form.control}
           render={({ field, fieldState }) => (
             <Field className="w-full" data-invalid={fieldState.invalid}>
-              <Input placeholder={placeholder} {...field} aria-invalid={fieldState.invalid}/>
+              <Input
+                type="search"
+                aria-label={placeholder}
+                placeholder={placeholder}
+                {...field}
+                aria-invalid={fieldState.invalid}
+              />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}

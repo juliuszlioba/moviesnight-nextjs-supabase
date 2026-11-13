@@ -17,14 +17,14 @@ export default async function RecordsListAnime({
   return (
     <div className="divide-y-2 divide-dashed">
       <div className="divide-y-2 divide-dashed">
-        {posts.map((post, index) => {
-          return <RecordListItem key={index} record={post} auth={null} listRating listBadge={false} />;
+        {posts.map((post) => {
+          return <RecordListItem key={post.id} record={post} listRating listBadge={false} />;
         })}
       </div>
       <Pagination
         curentPage={currentPage}
         totalCount={count}
-        urlPrefix={"anime"}
+        basePath="/anime"
       />
     </div>
   );

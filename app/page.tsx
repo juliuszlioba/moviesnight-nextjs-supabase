@@ -1,3 +1,4 @@
+import { parsePage } from "@/lib/config";
 import Header from "./header";
 import RecordsListAll from "@/components/records/records-list-all";
 import { Spinner } from "@/components/ui/spinner";
@@ -11,7 +12,7 @@ export default async function Home({
   }>;
 }) {
   const { page } = (await searchParams) || {};
-  const currentPage = Number(page) || 1;
+  const currentPage = parsePage(page);
 
   return (
     <div>
