@@ -1,6 +1,7 @@
 import { GRID_POSTS_LIMIT, POSTS_LIMIT } from "@/lib/config";
 
 import { Button } from "./ui/button";
+import { Input } from "./ui/input";
 import Link from "next/link";
 
 function pageHref(
@@ -68,6 +69,30 @@ export default function Pagination({
         {curentPage < lastPage - 3 && <p>...</p>}
         {pageButton(lastPage)}
       </div>
+      <form
+        action={basePath}
+        method="get"
+        className="flex items-center gap-2"
+      >
+        {Object.entries(query ?? {})
+          .filter(([key]) => key !== "page")
+          .map(([key, value]) => (
+            <input key={key} type="hidden" name={key} value={value} />
+          ))}
+        <Input
+          type="number"
+          name="page"
+          min={1}
+          max={lastPage}
+          required
+          placeholder="Page"
+          aria-label="Go to page"
+          className="w-20"
+        />
+        <Button type="submit" variant={"outline"}>
+          Go
+        </Button>
+      </form>
     </nav>
   );
 }
