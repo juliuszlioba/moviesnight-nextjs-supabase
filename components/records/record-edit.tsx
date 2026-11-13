@@ -216,8 +216,20 @@ export function RecordEditForm({
                       selected={field.value}
                       onSelect={field.onChange}
                       defaultMonth={field.value}
+                      captionLayout="dropdown"
                       required={true}
                     />
+                    <div className="border-t p-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="w-full"
+                        onClick={() => field.onChange(new Date())}
+                      >
+                        Today
+                      </Button>
+                    </div>
                   </PopoverContent>
                 </Popover>
                 {fieldState.invalid && (
@@ -236,11 +248,18 @@ export function RecordEditForm({
 
         <CardContent className="space-y-4">
           {record.mediatype === "movie" && (
-            <RecordListItemSortOrderForm
-              id={record.id}
-              mediaType={record.mediatype}
-              currentSortOrder={record.sort_order_movie}
-            />
+            <div className="flex gap-4 flex-col">
+              <RecordListItemSortOrderForm
+                  id={record.id}
+                  mediaType={"anime"}
+                  currentSortOrder={record.sort_order_anime}
+                />
+              <RecordListItemSortOrderForm
+                id={record.id}
+                mediaType={record.mediatype}
+                currentSortOrder={record.sort_order_movie}
+              />
+            </div>
           )}
           {record.mediatype === "series" && (
             <div className="flex gap-4 flex-col">
