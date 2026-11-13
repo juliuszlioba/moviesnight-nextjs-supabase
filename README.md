@@ -26,6 +26,9 @@ Before starting development <br>
 bun supabase start
 ```
 
+Sign-ups are disabled (single-user site). To log in locally, create a user in
+Supabase Studio (http://127.0.0.1:54323 > Authentication > Add user).
+
 Start developing or poking around!
 ```bash
 bun run dev
