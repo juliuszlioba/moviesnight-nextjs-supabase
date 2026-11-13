@@ -17,14 +17,14 @@ export default async function RecordsListTopSeries({
   return (
     <div className="divide-y-2 divide-dashed">
       <div className="divide-y-2 divide-dashed">
-        {posts.map((post, index) => {
-          return <RecordListItem key={index} record={post} auth={null} listBadge={false} />;
+        {posts.map((post) => {
+          return <RecordListItem key={post.id} record={post} listBadge={false} />;
         })}
       </div>
       <Pagination
         curentPage={currentPage}
         totalCount={count}
-        urlPrefix={"top/series"}
+        basePath="/top/series"
       />
     </div>
   );

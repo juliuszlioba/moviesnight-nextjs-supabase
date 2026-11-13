@@ -13,6 +13,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import type { SortListType } from "@/lib/schemas";
 import { Spinner } from "../ui/spinner";
 import { capitalize } from "radash";
 import { toast } from "sonner";
@@ -29,7 +30,7 @@ const formSchema = z.object({
           : "Sort order must be a number",
     })
     .int("Must be a whole number")
-    .min(0, "Must be 0 or greater"),
+    .min(1, "Must be 1 or greater"),
 });
 
 export default function RecordListItemSortOrderForm({
@@ -38,9 +39,12 @@ export default function RecordListItemSortOrderForm({
   currentSortOrder,
 }: {
   id: number;
-  mediaType: "anime" | "movie" | "series";
+  mediaType: SortListType;
   currentSortOrder?: number | null;
 }) {
+  // Each list gets its own form id; two forms render on the same page
+  const formId = `form-rhf-sort-order-${mediaType}`;
+
   const form = useForm<
     z.input<typeof formSchema>,
     unknown,
@@ -48,62 +52,60 @@ export default function RecordListItemSortOrderForm({
   >({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      sortOrder: currentSortOrder || 0,
+      sortOrder: currentSortOrder ?? 1,
     },
   });
   const router = useRouter();
 
   const [loading, setLoading] = useState(false);
 
-  async function onSubmit(data: z.output<typeof formSchema>) {
+  async function run(
+    action: () => Promise<{ status: string }>,
+    successMessage: string,
+    errorMessage: string,
+  ) {
     setLoading(true);
-    const { status } = await moveSingleRecordSortOrder({
-      recordId: id,
-      newPosition: data.sortOrder,
-      mediaType: mediaType,
-    });
-
-    if (status === "success") {
-      toast.success(`Updated ${mediaType} sort order to: ${data.sortOrder}`);
-    } else {
-      toast.error("Error updating record position");
+    try {
+      const { status } = await action();
+      if (status === "success") {
+        toast.success(successMessage);
+        router.refresh();
+      } else {
+        toast.error(errorMessage);
+      }
+    } catch {
+      toast.error(errorMessage);
     }
-
     setLoading(false);
-    return;
   }
 
-  async function handleAdd() {
-    setLoading(true);
-    const { status } = await addRecordToSortOrder({ mediaType, recordId: id });
-
-    if (status === "success") {
-      toast.success(`Added to ${mediaType} list`);
-      router.refresh();
-    } else {
-      toast.error("Error adding record to sort order list");
-    }
-
-    setLoading(false);
-    return;
+  function onSubmit(data: z.output<typeof formSchema>) {
+    return run(
+      () =>
+        moveSingleRecordSortOrder({
+          recordId: id,
+          newPosition: data.sortOrder,
+          mediaType,
+        }),
+      `Updated ${mediaType} sort order to: ${data.sortOrder}`,
+      "Error updating record position",
+    );
   }
 
-  async function handleRemove() {
-    setLoading(true);
-    const { status } = await removeRecordFromSortOrder({
-      mediaType,
-      recordId: id,
-    });
+  function handleAdd() {
+    return run(
+      () => addRecordToSortOrder({ mediaType, recordId: id }),
+      `Added to ${mediaType} list`,
+      "Error adding record to sort order list",
+    );
+  }
 
-    if (status === "success") {
-      toast.success(`Removed from ${mediaType} list`);
-      router.refresh();
-    } else {
-      toast.error("Error removing record from sort order list");
-    }
-
-    setLoading(false);
-    return;
+  function handleRemove() {
+    return run(
+      () => removeRecordFromSortOrder({ mediaType, recordId: id }),
+      `Removed from ${mediaType} list`,
+      "Error removing record from sort order list",
+    );
   }
 
   if (currentSortOrder === null || currentSortOrder === undefined) {
@@ -122,9 +124,11 @@ export default function RecordListItemSortOrderForm({
 
   return (
     <div>
-      <form id="form-rhf-sort-order" onSubmit={form.handleSubmit(onSubmit)}>
+      <form id={formId} onSubmit={form.handleSubmit(onSubmit)}>
         <FieldGroup className="flex gap-2 flex-row items-center">
-          <div className="shrink-0">{capitalize(mediaType)} list:</div>
+          <label htmlFor={`${formId}-input`} className="shrink-0">
+            {capitalize(mediaType)} list:
+          </label>
 
           <Controller
             name="sortOrder"
@@ -134,8 +138,9 @@ export default function RecordListItemSortOrderForm({
                 <Input
                   {...field}
                   value={field.value as number}
-                  id="form-rhf-sort-order-sort-order"
+                  id={`${formId}-input`}
                   type="number"
+                  min={1}
                   aria-invalid={fieldState.invalid}
                   placeholder="Position"
                   autoComplete="off"
@@ -153,7 +158,7 @@ export default function RecordListItemSortOrderForm({
           ) : (
             <>
               <Field orientation="horizontal" className="w-auto">
-                <Button type="submit" form="form-rhf-sort-order">
+                <Button type="submit" aria-label="Save position">
                   <Save />
                 </Button>
               </Field>
@@ -161,6 +166,7 @@ export default function RecordListItemSortOrderForm({
               <Button
                 type="button"
                 variant="destructive"
+                aria-label="Remove from list"
                 onClick={() => handleRemove()}
               >
                 <Trash2 />

@@ -1,6 +1,7 @@
 import { CalendarCheck, Clock, FileEdit, ThumbsUp } from "lucide-react";
 import { fetchRecordMetadata, readRecord } from "@/lib/records";
-import { format, isFuture } from "date-fns";
+import { formatDisplayDate } from "@/lib/config";
+import { isFuture } from "date-fns";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -31,10 +32,9 @@ export default async function RecordItem({
     notFound();
   }
 
-  //TODO: Error handling
   const { data: metadata } = await fetchRecordMetadata({
-    mediatype: record?.mediatype,
-    tmdbid: record.tmdbid as number,
+    mediatype: record.mediatype,
+    tmdbid: record.tmdbid,
   });
 
   return (
@@ -142,7 +142,7 @@ export default async function RecordItem({
             {isFuture(new Date(record.watchedat))
               ? "Will finish at"
               : "Watched at"}{" "}
-            {format(new Date(record.watchedat), "yyyy-MM-dd")}
+            {formatDisplayDate(record.watchedat)}
           </div>
         )}
 

@@ -8,7 +8,15 @@ export default async function TmdbList({
 }) {
   if (!searchQuery) return null;
 
-  const searchResults = (await fetchTmdbSearchResults({ searchQuery })) || [];
+  const searchResults = await fetchTmdbSearchResults({ searchQuery });
+
+  if (searchResults === null) {
+    return (
+      <p className="text-destructive">
+        TMDB search failed. Please try again later.
+      </p>
+    );
+  }
 
   return (
     <div className="space-y-2">

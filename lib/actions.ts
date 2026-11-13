@@ -1,19 +1,33 @@
 "use server";
 
-import * as z from "zod";
+import {
+  RecordEditFormSchema,
+  type RecordEditFormValues,
+  SortListType,
+} from "./schemas";
 
-import { RecordEditFormSchema } from "@/components/records/record-edit";
 import { TMDBresultsEntity } from "./tmdb.types";
 import { createClient } from "./supabase/server";
-import { formatISO } from "date-fns";
 import { revalidatePath } from "next/cache";
 import slugify from "./slugify";
-import { toInt } from "radash";
 
 export interface Status {
   status: "success" | "duplicate" | "error" | "unauthorised";
-  message?: string | unknown;
+  message?: string;
   redirectTo?: string;
+}
+
+// Postgres unique_violation
+const UNIQUE_VIOLATION = "23505";
+
+async function getAuthedClient() {
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getClaims();
+  return { supabase, user: data?.claims ?? null };
+}
+
+function revalidateRecordPages() {
+  revalidatePath("/", "layout");
 }
 
 // RECORDS > ADD
@@ -22,109 +36,81 @@ export async function addRecord({
 }: {
   record: TMDBresultsEntity;
 }): Promise<Status> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!record) {
-    return { status: "error" };
-  }
+  const { supabase, user } = await getAuthedClient();
 
   if (!user) {
     return { status: "unauthorised" };
   }
 
-  function preocessData(record: TMDBresultsEntity) {
-    const year =
-      record.release_date?.substring(0, 4) ||
+  if (
+    !record ||
+    !Number.isInteger(record.id) ||
+    (record.media_type !== "movie" && record.media_type !== "tv")
+  ) {
+    return { status: "error", message: "Invalid record." };
+  }
+
+  const title = record.title || record.name || "";
+  const slug = slugify(title);
+  const year = parseInt(
+    record.release_date?.substring(0, 4) ||
       record.first_air_date?.substring(0, 4) ||
-      "0";
+      "",
+    10,
+  );
 
-    const media_type = record.media_type === "tv" ? "series" : "movie";
+  if (!title || !slug || !Number.isInteger(year)) {
+    return { status: "error", message: "Missing title or release year." };
+  }
 
-    return {
+  try {
+    // 1: check for existing record
+    const { count, error } = await supabase
+      .from("records")
+      .select("id", { count: "exact", head: true })
+      .eq("slug", slug)
+      .eq("year", year);
+
+    if (error) {
+      throw error;
+    }
+    if (count && count > 0) {
+      return { status: "duplicate" };
+    }
+
+    // 2: Insert to database
+    const dataLoad = {
       tmdbid: record.id,
-      mediatype: media_type,
+      mediatype: record.media_type === "tv" ? "series" : "movie",
       poster: record.poster_path || "",
-      title: (record.title as string) || (record.name as string),
-      year: parseInt(year),
-      slug: slugify((record.title as string) || (record.name as string)),
+      title,
+      year,
+      slug,
       recommendation: "",
       review: "",
       rating: 0,
     };
-  }
 
-  const handleGenres = (genresIndexes: number[], recordId: number) => {
-    genresIndexes.map(async (genreIndex: number) => {
-      await supabase
-        .from("records_ganres")
-        .insert({ record_id: recordId, ganre_id: genreIndex });
-    });
-    return;
-  };
-
-  try {
-    if (!record.title && !record.name) {
-      return { status: "error" };
-    }
-
-    const preslug = record.title || record.name || "";
-
-    if (!preslug || preslug.length === 0) {
-      return { status: "error" };
-    }
-
-    // 0: Prepare data
-    const slug = slugify(preslug);
-    const year =
-      record.release_date?.substring(0, 4) ||
-      record.first_air_date?.substring(0, 4);
-
-    if (!slug || !year) {
-      return { status: "error" };
-    }
-
-    // 1: check for existing record
-    const { count, error } = await supabase
+    const { error: insertError } = await supabase
       .from("records")
-      .select("*", { count: "exact" })
-      .eq("slug", slug)
-      .eq("year", toInt(year));
+      .insert(dataLoad);
 
-    if (count === null || error || count > 0) {
-      return { status: "duplicate" };
+    if (insertError) {
+      // Unique index on (year, slug) catches races with the check above
+      if (insertError.code === UNIQUE_VIOLATION) {
+        return { status: "duplicate" };
+      }
+      throw insertError;
     }
 
-    // 2: process record data
-    const dataLoad = preocessData(record);
-
-    // 3: Insert to database
-    const { data: returndata, error: resError } = await supabase
-      .from("records")
-      .insert(dataLoad)
-      .select()
-      .single();
-
-    if (resError) {
-      throw new Error("error");
-    }
-
-    // 4: Handle ganres
-    if (record.genre_ids) {
-      handleGenres(record.genre_ids, returndata.id);
-    }
-
-    revalidatePath("/[mediatype]/[year]/[slug]", "page");
-    revalidatePath("/", "page");
+    revalidateRecordPages();
 
     return {
       status: "success",
       redirectTo: `/${dataLoad.mediatype}/${dataLoad.year}/${dataLoad.slug}`,
     };
   } catch (error) {
-    console.log("Database Error. ", error);
+    console.error("Database Error. ", error);
     return { status: "error" };
   }
 }
@@ -133,76 +119,124 @@ export async function addRecord({
 export async function updateRecord({
   formValues,
 }: {
-  formValues: z.infer<typeof RecordEditFormSchema>;
+  formValues: RecordEditFormValues;
 }): Promise<Status> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await getAuthedClient();
 
   if (!user) {
     return { status: "unauthorised" };
   }
 
+  const parsed = RecordEditFormSchema.safeParse(formValues);
+  if (!parsed.success) {
+    return { status: "error", message: "Invalid form values." };
+  }
+  const values = parsed.data;
+
   try {
-    //await new Promise((resolve) => setTimeout(resolve, 3000)) //!
-    const { error: supabaseError } = await supabase
+    const { error } = await supabase
       .from("records")
       .update({
-        rating: toInt(formValues.rating),
-        recommendation: formValues.recommendation,
-        review: formValues.review,
-        watchedat: formatISO(new Date(formValues.watchedAt)),
-        updatedat: formatISO(new Date()),
+        rating: Number(values.rating),
+        recommendation: values.recommendation,
+        review: values.review,
+        watchedat: values.watchedAt.toISOString(),
+        updatedat: new Date().toISOString(),
       })
-      .eq("id", formValues.id)
-      .select()
+      .eq("id", values.id)
+      .select("id")
       .single();
-    if (supabaseError) {
-      throw new Error("error");
+
+    if (error) {
+      throw error;
     }
 
-    revalidatePath("/[mediatype]/[year]/[slug]", "page");
-    revalidatePath("/", "page");
+    revalidateRecordPages();
 
     return { status: "success" };
   } catch (error) {
-    console.log("Database Error. ", error);
+    console.error("Database Error. ", error);
     return { status: "error" };
   }
 }
 
 // RECORDS > DELETE
 export async function deleteRecord({ id }: { id: number }): Promise<Status> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await getAuthedClient();
 
   if (!user) {
     return { status: "unauthorised" };
   }
 
-  try {
-    const { error: supabaseError } = await supabase
-      .from("records")
-      .delete()
-      .eq("id", id);
+  if (!Number.isInteger(id)) {
+    return { status: "error" };
+  }
 
-    if (supabaseError) {
-      throw new Error("error");
+  try {
+    const { error } = await supabase.from("records").delete().eq("id", id);
+
+    if (error) {
+      throw error;
     }
 
-    revalidatePath("/", "page");
+    revalidateRecordPages();
 
     return { status: "success" };
   } catch (error) {
-    console.log("Database Error: ", error);
+    console.error("Database Error: ", error);
     return { status: "error" };
   }
 }
 
-// SORTLSIT > ADD : Append a record to the bottom of the sorted list
+// SORTLIST > shared runner for the sort-order RPCs
+async function runSortRpc(
+  rpc: "add_to_sort" | "remove_from_sort" | "update_single_sort_order",
+  args: { mediaType: string; recordId: number; newPosition?: number },
+): Promise<Status> {
+  const { supabase, user } = await getAuthedClient();
+
+  if (!user) {
+    return { status: "unauthorised" };
+  }
+
+  const mediaType = SortListType.safeParse(args.mediaType);
+  if (
+    !mediaType.success ||
+    !Number.isInteger(args.recordId) ||
+    (rpc === "update_single_sort_order" &&
+      !(Number.isInteger(args.newPosition) && args.newPosition! >= 1))
+  ) {
+    return { status: "error", message: "Invalid input." };
+  }
+
+  try {
+    const { error } =
+      rpc === "update_single_sort_order"
+        ? await supabase.rpc(rpc, {
+            media_type: mediaType.data,
+            record_id: args.recordId,
+            new_position: args.newPosition!,
+          })
+        : await supabase.rpc(rpc, {
+            media_type: mediaType.data,
+            record_id: args.recordId,
+          });
+
+    if (error) {
+      console.error(`Error in ${rpc}:`, error);
+      return { status: "error" };
+    }
+
+    revalidateRecordPages();
+
+    return { status: "success" };
+  } catch (error) {
+    console.error("Database Error: ", error);
+    return { status: "error" };
+  }
+}
+
+// SORTLIST > ADD : Append a record to the bottom of the sorted list
 export async function addRecordToSortOrder({
   mediaType,
   recordId,
@@ -210,34 +244,10 @@ export async function addRecordToSortOrder({
   mediaType: string;
   recordId: number;
 }): Promise<Status> {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return { status: "unauthorised" };
-  }
-
-  try {
-    const { error } = await supabase.rpc("add_to_sort", {
-      media_type: mediaType,
-      record_id: recordId,
-    });
-
-    if (error) {
-      console.log("Error adding record to sort order list:", error);
-      return { status: "error" };
-    }
-    return { status: "success" };
-  } catch (error) {
-    console.log("Database Error: ", error);
-    return { status: "error" };
-  }
+  return runSortRpc("add_to_sort", { mediaType, recordId });
 }
 
-// SORTLSIT > UPDATE SINGLE : Move one record to a new position
+// SORTLIST > UPDATE SINGLE : Move one record to a new position
 export async function moveSingleRecordSortOrder({
   mediaType,
   recordId,
@@ -247,35 +257,14 @@ export async function moveSingleRecordSortOrder({
   recordId: number;
   newPosition: number;
 }): Promise<Status> {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return { status: "unauthorised" };
-  }
-
-  try {
-    const { error } = await supabase.rpc("update_single_sort_order", {
-      record_id: recordId,
-      new_position: newPosition,
-      media_type: mediaType,
-    });
-
-    if (error) {
-      console.log("Error updating record position:", error);
-      return { status: "error" };
-    }
-    return { status: "success" };
-  } catch (error) {
-    console.log("Database Error: ", error);
-    return { status: "error" };
-  }
+  return runSortRpc("update_single_sort_order", {
+    mediaType,
+    recordId,
+    newPosition,
+  });
 }
 
-// SORTLSIT > REMOVE : Take a record out of the sorted list
+// SORTLIST > REMOVE : Take a record out of the sorted list
 export async function removeRecordFromSortOrder({
   mediaType,
   recordId,
@@ -283,29 +272,5 @@ export async function removeRecordFromSortOrder({
   mediaType: string;
   recordId: number;
 }): Promise<Status> {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return { status: "unauthorised" };
-  }
-
-  try {
-    const { error } = await supabase.rpc("remove_from_sort", {
-      media_type: mediaType,
-      record_id: recordId,
-    });
-
-    if (error) {
-      console.log("Error adding record to sort order list:", error);
-      return { status: "error" };
-    }
-    return { status: "success" };
-  } catch (error) {
-    console.log("Database Error: ", error);
-    return { status: "error" };
-  }
+  return runSortRpc("remove_from_sort", { mediaType, recordId });
 }

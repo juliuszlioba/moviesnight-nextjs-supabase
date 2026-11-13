@@ -1,21 +1,18 @@
-import Header from '@/app/header';
-import RecordItem from '@/components/records/record-item';
-import { Spinner } from '@/components/ui/spinner';
-import { Suspense } from 'react'
+import Header from "@/app/header";
+import RecordItem from "@/components/records/record-item";
 
-export default async function PostPage(
-    props: {
-        params: Promise<{ year: string; slug: string }>
-    }
-) {
-    const params = await props.params;
+export default async function RecordPage(props: {
+  params: Promise<{ year: string; slug: string }>;
+}) {
+  const params = await props.params;
 
-    return (
-		<main>
-			<Header />
-			<Suspense key={`year-string`} fallback={<Spinner />}>
-				<RecordItem year={params.year} slug={params.slug} />
-			</Suspense>
-		</main>
-	)
+  // No Suspense boundary here on purpose: RecordItem calls notFound() for
+  // unknown records, and that only yields a real 404 status if it happens
+  // before the response starts streaming.
+  return (
+    <main>
+      <Header />
+      <RecordItem year={params.year} slug={params.slug} />
+    </main>
+  );
 }

@@ -52,51 +52,6 @@ export type Database = {
         }
         Relationships: []
       }
-      list_top_anime: {
-        Row: {
-          id: number
-          list: number[] | null
-        }
-        Insert: {
-          id?: number
-          list?: number[] | null
-        }
-        Update: {
-          id?: number
-          list?: number[] | null
-        }
-        Relationships: []
-      }
-      list_top_movies: {
-        Row: {
-          id: number
-          list: number[] | null
-        }
-        Insert: {
-          id?: number
-          list?: number[] | null
-        }
-        Update: {
-          id?: number
-          list?: number[] | null
-        }
-        Relationships: []
-      }
-      list_top_series: {
-        Row: {
-          id: number
-          list: number[] | null
-        }
-        Insert: {
-          id?: number
-          list?: number[] | null
-        }
-        Update: {
-          id?: number
-          list?: number[] | null
-        }
-        Relationships: []
-      }
       records: {
         Row: {
           createdat: string | null

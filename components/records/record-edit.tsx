@@ -1,7 +1,5 @@
 "use client";
 
-import * as z from "zod";
-
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -29,7 +27,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Status, updateRecord } from "@/lib/actions";
+import {
+  RecordEditFormSchema,
+  type RecordEditFormValues,
+} from "@/lib/schemas";
 
 import { Button } from "../ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -40,17 +41,11 @@ import RecordListItemSortOrderForm from "./record-list-item-sort-order";
 import { Spinner } from "../ui/spinner";
 import { Textarea } from "../ui/textarea";
 import { format } from "date-fns";
+import { toast } from "sonner";
+import { updateRecord } from "@/lib/actions";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-
-export const RecordEditFormSchema = z.object({
-  id: z.number().readonly(),
-  rating: z.string(),
-  recommendation: z.string(),
-  review: z.string(),
-  watchedAt: z.date(),
-});
 
 const ratingOptions = [
   { label: "10 - Masterpiece", value: "10" },
@@ -70,40 +65,43 @@ export function RecordEditForm({
 }: {
   record: Database["public"]["Tables"]["records"]["Row"];
 }) {
-  const form = useForm<z.infer<typeof RecordEditFormSchema>>({
+  const form = useForm<RecordEditFormValues>({
     resolver: zodResolver(RecordEditFormSchema),
     defaultValues: {
       id: record.id,
-      rating: String(record.rating),
+      rating: String(record.rating ?? 0),
       recommendation: record.recommendation
         ? String(record.recommendation)
         : "",
       review: record.review ? String(record.review) : "",
-      watchedAt: new Date(String(record.watchedat)),
+      watchedAt: record.watchedat ? new Date(record.watchedat) : new Date(),
     },
   });
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<Status | undefined>(undefined);
   const { push } = useRouter();
 
-  async function onSubmit(formValues: z.infer<typeof RecordEditFormSchema>) {
+  async function onSubmit(formValues: RecordEditFormValues) {
+    if (loading) return;
     setLoading(true);
-    const { status } = await updateRecord({
-      formValues,
-    });
+    try {
+      const { status, message } = await updateRecord({ formValues });
 
-    if (status === "success") {
-      return push(`/${record.mediatype}/${record.year}/${record.slug}`);
-    } else {
-      setError({ status });
+      if (status === "success") {
+        toast.success("Saved");
+        push(`/${record.mediatype}/${record.year}/${record.slug}`);
+        return;
+      }
+
+      toast.error(
+        status === "unauthorised"
+          ? "Not logged in"
+          : message || "Error saving record",
+      );
+    } catch {
+      toast.error("Error saving record");
     }
-
     setLoading(false);
-  }
-
-  if (!record) {
-    return null;
   }
 
   return (
@@ -111,8 +109,8 @@ export function RecordEditForm({
       <form
         id="form-rhf-edit-record"
         // onSubmit={form.handleSubmit(onSubmit)}
-        onSubmit={form.handleSubmit(onSubmit, (errors) =>
-          console.log("Validation Errors:", errors),
+        onSubmit={form.handleSubmit(onSubmit, () =>
+          toast.error("Please fix the highlighted fields"),
         )}
         className="space-y-4"
       >
@@ -250,13 +248,15 @@ export function RecordEditForm({
           {record.mediatype === "movie" && (
             <div className="flex gap-4 flex-col">
               <RecordListItemSortOrderForm
-                  id={record.id}
-                  mediaType={"anime"}
-                  currentSortOrder={record.sort_order_anime}
-                />
-              <RecordListItemSortOrderForm
+                key={`anime-${record.sort_order_anime}`}
                 id={record.id}
-                mediaType={record.mediatype}
+                mediaType={"anime"}
+                currentSortOrder={record.sort_order_anime}
+              />
+              <RecordListItemSortOrderForm
+                key={`movie-${record.sort_order_movie}`}
+                id={record.id}
+                mediaType={"movie"}
                 currentSortOrder={record.sort_order_movie}
               />
             </div>
@@ -264,11 +264,13 @@ export function RecordEditForm({
           {record.mediatype === "series" && (
             <div className="flex gap-4 flex-col">
               <RecordListItemSortOrderForm
+                key={`anime-${record.sort_order_anime}`}
                 id={record.id}
                 mediaType={"anime"}
                 currentSortOrder={record.sort_order_anime}
               />
               <RecordListItemSortOrderForm
+                key={`series-${record.sort_order_series}`}
                 id={record.id}
                 mediaType={"series"}
                 currentSortOrder={record.sort_order_series}
@@ -305,7 +307,8 @@ export function RecordEditForm({
         </AlertDialog>
 
         <Button
-          type={!loading ? "submit" : "button"}
+          type="submit"
+          disabled={loading}
           variant={"default"}
           className="gap-2"
           form="form-rhf-edit-record"

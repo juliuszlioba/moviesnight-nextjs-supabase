@@ -1,88 +1,73 @@
-const POSTLIMIT = toInt(process.env.NEXT_PUBLIC_POSTS_LIMIT);
-const GRIDPOSTLIMIT = toInt(process.env.NEXT_PUBLIC_POSTS_GRID_LIMIT);
+import { GRID_POSTS_LIMIT, POSTS_LIMIT } from "@/lib/config";
 
 import { Button } from "./ui/button";
 import Link from "next/link";
-import { toInt } from "radash";
 
-const PageButton = ({
-  number,
-  urlPrefix,
-  samepage,
-}: {
-  number: number;
-  urlPrefix: string;
-  samepage: boolean;
-}) => {
-  return (
-    <Link
-      href={`${urlPrefix === "" ? "" : "/" + urlPrefix}${
-        samepage ? "&" : "/?"
-      }page=${number}`}
-    >
-      <Button variant={"outline"}>
-        {number}
-      </Button>
-    </Link>
-  );
-};
+function pageHref(
+  basePath: string,
+  query: Record<string, string> | undefined,
+  page: number,
+) {
+  const params = new URLSearchParams(query);
+  if (page > 1) {
+    params.set("page", String(page));
+  } else {
+    params.delete("page");
+  }
+  const qs = params.toString();
+  return qs ? `${basePath}?${qs}` : basePath;
+}
 
 export default function Pagination({
   curentPage,
   totalCount,
-  urlPrefix = "",
-  samepage = false,
+  basePath = "/",
+  query,
   grid = false,
 }: {
   curentPage: number;
   totalCount: number;
-  urlPrefix?: string;
-  samepage?: boolean;
+  /** Path of the listing page, e.g. "/top/movies" */
+  basePath?: string;
+  /** Extra query params to keep, e.g. { search: "alien" } */
+  query?: Record<string, string>;
   grid?: boolean;
 }) {
-  const postsLimit = grid ? GRIDPOSTLIMIT : POSTLIMIT;
-  const lastPage =
-    Math.floor(totalCount / postsLimit) + (totalCount % postsLimit > 0 ? 1 : 0);
+  const postsLimit = grid ? GRID_POSTS_LIMIT : POSTS_LIMIT;
+  const lastPage = Math.ceil(totalCount / postsLimit);
 
   if (lastPage <= 1) {
     return null;
   }
 
-  if (totalCount <= postsLimit) {
-    return null;
-  }
+  const pageButton = (number: number) =>
+    number === curentPage ? (
+      <Button aria-current="page">{number}</Button>
+    ) : (
+      <Button variant={"outline"} asChild>
+        <Link href={pageHref(basePath, query, number)}>{number}</Link>
+      </Button>
+    );
 
   return (
-    <div className="flex w-full flex-col items-center gap-4 py-4 sm:flex-row sm:justify-between">
+    <nav
+      aria-label="Pagination"
+      className="flex w-full flex-col items-center gap-4 py-4 sm:flex-row sm:justify-between"
+    >
       <div className="max-sm:hidden">{`Page ${curentPage} of ${lastPage}`}</div>
       <div className="flex items-center gap-2">
-        {curentPage > 1 ? (
-          <PageButton number={1} samepage={samepage} urlPrefix={urlPrefix} />
-        ) : (
-          <Button>
-            1
-          </Button>
-        )}
+        {pageButton(1)}
         {curentPage > 4 && <p>...</p>}
-        {curentPage > 3 && <PageButton number={curentPage - 2} samepage={samepage} urlPrefix={urlPrefix} />}
-        {curentPage > 2 && <PageButton number={curentPage - 1} samepage={samepage} urlPrefix={urlPrefix} />}
+        {curentPage > 3 && pageButton(curentPage - 2)}
+        {curentPage > 2 && pageButton(curentPage - 1)}
         {curentPage > 1 && curentPage < lastPage && (
-          <Button >
-            {curentPage}
-          </Button>
+          pageButton(curentPage)
         )}
-        {curentPage < lastPage - 1 && <PageButton number={curentPage + 1} samepage={samepage} urlPrefix={urlPrefix} />}
-        {curentPage < lastPage - 2 && <PageButton number={curentPage + 2} samepage={samepage} urlPrefix={urlPrefix} />}
+        {curentPage < lastPage - 1 && pageButton(curentPage + 1)}
+        {curentPage < lastPage - 2 && pageButton(curentPage + 2)}
         {curentPage < lastPage - 3 && <p>...</p>}
-
-        {curentPage < lastPage ? (
-          <PageButton number={lastPage} samepage={samepage} urlPrefix={urlPrefix} />
-        ) : (
-          <Button >
-            {lastPage}
-          </Button>
-        )}
+        {pageButton(lastPage)}
       </div>
-    </div>
+    </nav>
   );
 }

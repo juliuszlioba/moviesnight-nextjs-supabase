@@ -5,19 +5,18 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
 export async function signIn(formData: FormData) {
+  const email = formData.get("email");
+  const password = formData.get("password");
+
+  if (typeof email !== "string" || typeof password !== "string") {
+    redirect("/login?error=1");
+  }
+
   const supabase = await createClient();
-
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
-  const data = {
-    email: formData.get("email") as string,
-    password: formData.get("password") as string,
-  };
-
-  const { error } = await supabase.auth.signInWithPassword(data);
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
-    redirect("/error");
+    redirect("/login?error=1");
   }
 
   revalidatePath("/", "layout");

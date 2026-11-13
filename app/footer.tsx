@@ -33,7 +33,7 @@ export default function SiteFooter() {
 					About
 				</Link>
 				<Link
-					href="privacy"
+					href="/privacy"
 					className="rounded-full px-2 py-1 hover:text-primary focus:ring-2 focus:ring-primary focus-visible:outline-none"
 				>
 					Privacy
