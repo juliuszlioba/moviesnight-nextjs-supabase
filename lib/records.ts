@@ -100,6 +100,38 @@ export async function fetchSortedAnimeRecords(opts: {
   return fetchSortedRecords("sort_order_anime", opts);
 }
 
+/** Whole anime list (no pagination), only the fields the sort UI needs. */
+export async function fetchAllAnimeSortRecords() {
+  const supabase = await createClient();
+  // PostgREST caps each response (max_rows = 1000), so fetch in chunks
+  const CHUNK = 1000;
+  const query = () =>
+    supabase
+      .from("records")
+      .select("id, title, year, poster, sort_order_anime")
+      .not("sort_order_anime", "is", null)
+      .order("sort_order_anime", { ascending: true });
+
+  const posts: NonNullable<Awaited<ReturnType<typeof query>>["data"]> = [];
+  for (let from = 0; ; from += CHUNK) {
+    const { data, error } = await query().range(from, from + CHUNK - 1);
+
+    if (error) {
+      console.error("Database Error:", error);
+      throw new Error("Failed to fetch anime sort list.");
+    }
+
+    posts.push(...data);
+    if (data.length < CHUNK) break;
+  }
+
+  return { posts };
+}
+
+export type AnimeSortRecord = Awaited<
+  ReturnType<typeof fetchAllAnimeSortRecords>
+>["posts"][number];
+
 export async function fetchSortedMoviesRecords(opts: {
   curentPage?: number;
   grid?: boolean;

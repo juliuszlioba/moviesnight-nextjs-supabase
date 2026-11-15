@@ -37,9 +37,27 @@ export async function updateSession(request: NextRequest) {
 
   // IMPORTANT: If you remove getClaims() and you use server-side rendering
   // with the Supabase client, your users may be randomly logged out.
-  const { data } = await supabase.auth.getClaims();
+  const { data, error } = await supabase.auth.getClaims();
 
-  const user = data?.claims;
+  let user = data?.claims;
+
+  // Stale/invalid refresh token (e.g. after a DB reset or sign-out elsewhere):
+  // clear the leftover auth cookies so the error doesn't repeat on every request.
+  if (
+    error &&
+    "code" in error &&
+    (error.code === "refresh_token_not_found" ||
+      error.code === "refresh_token_already_used")
+  ) {
+    user = undefined;
+    request.cookies
+      .getAll()
+      .filter(({ name }) => name.startsWith("sb-"))
+      .forEach(({ name }) => {
+        request.cookies.delete(name);
+        supabaseResponse.cookies.delete(name);
+      });
+  }
 
   if (user && request.nextUrl.pathname.startsWith("/login")) {
     // no user, potentially respond by redirecting the user to the login page
@@ -51,6 +69,7 @@ export async function updateSession(request: NextRequest) {
   if (
     !user &&
     (request.nextUrl.pathname.startsWith("/add") ||
+    request.nextUrl.pathname.startsWith("/anime/sort") ||
     request.nextUrl.pathname.endsWith("/edit"))
   ) {
     // no user, potentially respond by redirecting the user to the login page
