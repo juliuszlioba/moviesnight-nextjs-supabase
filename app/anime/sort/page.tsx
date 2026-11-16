@@ -21,7 +21,7 @@ export default async function AnimeSortPage() {
         <div className="flex items-baseline justify-between gap-4">
           <h1>Sort anime list</h1>
           <p className="text-sm text-muted-foreground">
-            {posts.length} records · drag a row to move it
+            {posts.length} records · drag a row or tap its # to move it
           </p>
         </div>
         <AnimeSortList records={posts} />
