@@ -1,4 +1,4 @@
-import { ArrowUpDown } from "lucide-react";
+import { ArrowUpDown, Rows3 } from "lucide-react";
 import Header from "../header";
 import Link from "next/link";
 import RecordsListAnime from "@/components/records/records-list-top-anime";
@@ -26,15 +26,24 @@ export default async function AnimePage({
       <main className="flex flex-col space-y-4 mb-auto">
         <div className="flex items-center justify-between gap-4">
           <h1>Finished Anime in order of interest</h1>
-          {user && (
+          <div className="flex shrink-0 items-center gap-2">
             <Link
-              href="/anime/sort"
+              href="/anime/tier"
               className={buttonVariants({ variant: "outline", size: "sm" })}
             >
-              <ArrowUpDown strokeWidth={1.5} />
-              Sort
+              <Rows3 strokeWidth={1.5} />
+              Tier list
             </Link>
-          )}
+            {user && (
+              <Link
+                href="/anime/sort"
+                className={buttonVariants({ variant: "outline", size: "sm" })}
+              >
+                <ArrowUpDown strokeWidth={1.5} />
+                Sort
+              </Link>
+            )}
+          </div>
         </div>
         <RecordsListAnime currentPage={currentPage} />
       </main>

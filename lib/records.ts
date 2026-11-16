@@ -132,6 +132,38 @@ export type AnimeSortRecord = Awaited<
   ReturnType<typeof fetchAllAnimeSortRecords>
 >["posts"][number];
 
+/** Whole anime list (no pagination), only the fields the tier list needs. */
+export async function fetchAllAnimeTierRecords() {
+  const supabase = await createClient();
+  // PostgREST caps each response (max_rows = 1000), so fetch in chunks
+  const CHUNK = 1000;
+  const query = () =>
+    supabase
+      .from("records")
+      .select("id, title, year, poster, slug, mediatype, tier")
+      .not("sort_order_anime", "is", null)
+      .order("sort_order_anime", { ascending: true });
+
+  const posts: NonNullable<Awaited<ReturnType<typeof query>>["data"]> = [];
+  for (let from = 0; ; from += CHUNK) {
+    const { data, error } = await query().range(from, from + CHUNK - 1);
+
+    if (error) {
+      console.error("Database Error:", error);
+      throw new Error("Failed to fetch anime tier list.");
+    }
+
+    posts.push(...data);
+    if (data.length < CHUNK) break;
+  }
+
+  return { posts };
+}
+
+export type AnimeTierRecord = Awaited<
+  ReturnType<typeof fetchAllAnimeTierRecords>
+>["posts"][number];
+
 export async function fetchSortedMoviesRecords(opts: {
   curentPage?: number;
   grid?: boolean;
