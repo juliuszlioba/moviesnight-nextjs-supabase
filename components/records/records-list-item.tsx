@@ -2,7 +2,6 @@
 
 import { MessageCircle, ThumbsUp } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "../ui/button";
 import { Database } from "@/lib/database.types";
 import Image from "next/image";
@@ -63,21 +62,6 @@ export default function RecordListItem({
                 </Link>
               </div>
               <p className="text-sm text-gray-400">{record.year}</p>
-
-              {listBadge && record.sort_order_anime && (
-                <div className="py-1">
-                  {record.sort_order_anime && (
-                    <div className="text-sm text-gray-400">
-                      <Badge variant="default">
-                        <span className="font-bold">
-                          #{record.sort_order_anime}
-                        </span>{" "}
-                        Top Anime
-                      </Badge>
-                    </div>
-                  )}
-                </div>
-              )}
 
               {(record.recommendation || record.review) && (
                 <div className="mt-auto hidden items-center gap-2 pb-4 md:flex">
