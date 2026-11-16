@@ -13,6 +13,23 @@ export const RecordEditFormSchema = z.object({
   recommendation: z.string().max(500),
   review: z.string().max(10000),
   watchedAt: z.date(),
+  // Advanced options
+  title: z.string().trim().min(1, "Title is required").max(300),
+  slug: z
+    .string()
+    .trim()
+    .min(1, "Slug is required")
+    .max(300)
+    .regex(
+      /^[a-z0-9_-]+$/,
+      "Only lowercase letters, numbers, - and _ are allowed",
+    ),
+  // Kept as a string for the input; empty = no TMDB id
+  tmdbid: z
+    .string()
+    .trim()
+    .regex(/^\d*$/, "TMDB id must be a number")
+    .refine((v) => v === "" || Number(v) <= 2147483647, "TMDB id too large"),
 });
 
 export type RecordEditFormValues = z.infer<typeof RecordEditFormSchema>;

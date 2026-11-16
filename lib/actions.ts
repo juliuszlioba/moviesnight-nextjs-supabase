@@ -134,9 +134,12 @@ export async function updateRecord({
   const values = parsed.data;
 
   try {
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("records")
       .update({
+        title: values.title,
+        slug: values.slug,
+        tmdbid: values.tmdbid === "" ? null : Number(values.tmdbid),
         rating: Number(values.rating),
         tier: values.tier === "none" ? null : values.tier,
         recommendation: values.recommendation,
@@ -145,16 +148,26 @@ export async function updateRecord({
         updatedat: new Date().toISOString(),
       })
       .eq("id", values.id)
-      .select("id")
+      .select("mediatype, year, slug")
       .single();
 
     if (error) {
+      // Unique index on (year, slug)
+      if (error.code === UNIQUE_VIOLATION) {
+        return {
+          status: "duplicate",
+          message: "Another record already uses this slug for that year.",
+        };
+      }
       throw error;
     }
 
     revalidateRecordPages();
 
-    return { status: "success" };
+    return {
+      status: "success",
+      redirectTo: `/${data.mediatype}/${data.year}/${data.slug}`,
+    };
   } catch (error) {
     console.error("Database Error. ", error);
     return { status: "error" };

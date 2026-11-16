@@ -11,9 +11,9 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { ChevronDownIcon, Save, Trash } from "lucide-react";
+import { ChevronDownIcon, RefreshCw, Save, Trash } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
-import { Field, FieldError, FieldGroup } from "../ui/field";
+import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
 import {
   Popover,
   PopoverContent,
@@ -42,6 +42,7 @@ import { Spinner } from "../ui/spinner";
 import { TIERS, TIER_STYLES, isTier } from "@/lib/tiers";
 import { Textarea } from "../ui/textarea";
 import { cn } from "@/lib/utils";
+import slugify from "@/lib/slugify";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { updateRecord } from "@/lib/actions";
@@ -78,21 +79,27 @@ export function RecordEditForm({
         : "",
       review: record.review ? String(record.review) : "",
       watchedAt: record.watchedat ? new Date(record.watchedat) : new Date(),
+      title: record.title,
+      slug: record.slug,
+      tmdbid: record.tmdbid ? String(record.tmdbid) : "",
     },
   });
 
   const [loading, setLoading] = useState(false);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
   const { push } = useRouter();
 
   async function onSubmit(formValues: RecordEditFormValues) {
     if (loading) return;
     setLoading(true);
     try {
-      const { status, message } = await updateRecord({ formValues });
+      const { status, message, redirectTo } = await updateRecord({
+        formValues,
+      });
 
       if (status === "success") {
         toast.success("Saved");
-        push(`/${record.mediatype}/${record.year}/${record.slug}`);
+        push(redirectTo ?? `/${record.mediatype}/${record.year}/${record.slug}`);
         return;
       }
 
@@ -112,9 +119,12 @@ export function RecordEditForm({
       <form
         id="form-rhf-edit-record"
         // onSubmit={form.handleSubmit(onSubmit)}
-        onSubmit={form.handleSubmit(onSubmit, () =>
-          toast.error("Please fix the highlighted fields"),
-        )}
+        onSubmit={form.handleSubmit(onSubmit, (errors) => {
+          if (errors.title || errors.slug || errors.tmdbid) {
+            setAdvancedOpen(true);
+          }
+          toast.error("Please fix the highlighted fields");
+        })}
         className="space-y-4"
       >
         <FieldGroup className="flex flex-col gap-4 md:flex-row">
@@ -279,6 +289,99 @@ export function RecordEditForm({
             )}
           />
         </FieldGroup>
+
+        <details
+          className="group rounded-xl bg-card/25"
+          open={advancedOpen}
+          onToggle={(e) => setAdvancedOpen(e.currentTarget.open)}
+        >
+          <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-medium select-none [&::-webkit-details-marker]:hidden">
+            Advanced options
+            <ChevronDownIcon className="size-4 transition-transform group-open:rotate-180" />
+          </summary>
+
+          <FieldGroup className="gap-4 border-t px-4 py-4">
+            <Controller
+              name="title"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="form-rhf-title">Title</FieldLabel>
+                  <Input
+                    {...field}
+                    id="form-rhf-title"
+                    aria-invalid={fieldState.invalid}
+                    autoComplete="off"
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+
+            <Controller
+              name="slug"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="form-rhf-slug">Slug</FieldLabel>
+                  <div className="flex gap-2">
+                    <Input
+                      {...field}
+                      id="form-rhf-slug"
+                      aria-invalid={fieldState.invalid}
+                      autoComplete="off"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="gap-2"
+                      title="Generate slug from title"
+                      onClick={() =>
+                        form.setValue("slug", slugify(form.getValues("title")), {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                        })
+                      }
+                    >
+                      <RefreshCw strokeWidth={1.5} />
+                      From title
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Changing the slug changes the page URL: /{record.mediatype}/
+                    {record.year}/{field.value || "…"}
+                  </p>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+
+            <Controller
+              name="tmdbid"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="form-rhf-tmdbid">TMDB id</FieldLabel>
+                  <Input
+                    {...field}
+                    id="form-rhf-tmdbid"
+                    inputMode="numeric"
+                    aria-invalid={fieldState.invalid}
+                    placeholder="none"
+                    autoComplete="off"
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+          </FieldGroup>
+        </details>
       </form>
 
       <Card>
