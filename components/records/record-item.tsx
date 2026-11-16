@@ -3,6 +3,7 @@ import { fetchRecordMetadata, readRecord } from "@/lib/records";
 import { formatDisplayDate } from "@/lib/config";
 import { isFuture } from "date-fns";
 
+import { Badge } from "../ui/badge";
 import Image from "next/image";
 import Link from "next/link";
 import { StarRating } from "../StarRating";
@@ -61,6 +62,14 @@ export default async function RecordItem({
           <p className="mb-6 text-sm text-gray-400">
             {record?.year && record.year}
           </p>
+          {record.sort_order_anime && (
+            <div className="-mt-4 mb-6">
+              <Badge className="bg-primary/15 text-primary">
+                <span className="font-bold">#{record.sort_order_anime}</span>{" "}
+                Top Anime
+              </Badge>
+            </div>
+          )}
           <div className="mt-auto">
             {metadata?.runtime && (
               <div className="flex items-center gap-1 pb-2 text-gray-400">
