@@ -46,21 +46,27 @@ export default async function Header() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" sideOffset={12}>
             <DropdownMenuItem className="text-base" asChild>
+              <Link href="/anime/tier" className="flex items-center">
+                <Heart strokeWidth={1.5} className="mr-2 h-5 w-5" />
+                Anime Tier List
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="text-base" asChild>
               <Link href="/anime" className="flex items-center">
                 <Heart strokeWidth={1.5} className="mr-2 h-5 w-5" />
-                Anime
+                Anime Tops
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem className="text-base" asChild>
               <Link href="/top/movies" className="flex items-center">
                 <Clapperboard strokeWidth={1.5} className="mr-2 h-5 w-5" />
-                Movies Top
+                Movies Tops
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem className="text-base" asChild>
               <Link href="/top/series" className="flex items-center">
                 <Tv strokeWidth={1.5} className="mr-2 h-5 w-5" />
-                Series Top
+                Series Tops
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
