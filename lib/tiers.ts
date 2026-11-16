@@ -5,6 +5,17 @@ export function isTier(value: unknown): value is Tier {
   return typeof value === "string" && (TIERS as readonly string[]).includes(value);
 }
 
+// Suggested tier for a 1-10 rating; null for no rating
+export function tierForRating(rating: number): Tier | null {
+  if (rating >= 10) return "S";
+  if (rating >= 8) return "A";
+  if (rating === 7) return "B";
+  if (rating === 6) return "C";
+  if (rating >= 4) return "D";
+  if (rating >= 1) return "F";
+  return null;
+}
+
 // Full class strings so Tailwind can detect them
 export const TIER_STYLES: Record<Tier, string> = {
   S: "bg-red-500 text-white shadow-red-500/50",

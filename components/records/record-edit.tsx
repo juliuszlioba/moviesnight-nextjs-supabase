@@ -39,7 +39,7 @@ import { Input } from "../ui/input";
 import RecordDeleteButton from "./record-delete";
 import RecordListItemSortOrderForm from "./record-list-item-sort-order";
 import { Spinner } from "../ui/spinner";
-import { TIERS, TIER_STYLES, isTier } from "@/lib/tiers";
+import { TIERS, TIER_STYLES, isTier, tierForRating } from "@/lib/tiers";
 import { Textarea } from "../ui/textarea";
 import { cn } from "@/lib/utils";
 import slugify from "@/lib/slugify";
@@ -136,7 +136,11 @@ export function RecordEditForm({
                 <Select
                   name={field.name}
                   value={field.value}
-                  onValueChange={field.onChange}
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                    const tier = tierForRating(Number(value));
+                    if (tier) form.setValue("tier", tier, { shouldDirty: true });
+                  }}
                 >
                   <SelectTrigger
                     id="form-rhf-select-language"
