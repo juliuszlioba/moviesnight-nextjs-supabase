@@ -138,6 +138,7 @@ export async function updateRecord({
       .from("records")
       .update({
         rating: Number(values.rating),
+        tier: values.tier === "none" ? null : values.tier,
         recommendation: values.recommendation,
         review: values.review,
         watchedat: values.watchedAt.toISOString(),

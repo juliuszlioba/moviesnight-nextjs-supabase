@@ -8,16 +8,15 @@ import { Database } from "@/lib/database.types";
 import Image from "next/image";
 import Link from "next/link";
 import { StarRating } from "../StarRating";
+import { TierBadge } from "../TierBadge";
 import { Transition } from "@headlessui/react";
 import { useState } from "react";
 
 export default function RecordListItem({
   record,
-  listRating = false,
   listBadge = true,
 }: {
   record: Database["public"]["Tables"]["records"]["Row"];
-  listRating?: boolean;
   listBadge?: boolean;
 }) {
   const [reviewOpen, setOpenReview] = useState(false);
@@ -42,13 +41,7 @@ export default function RecordListItem({
               ) : (
                 <div className="h-52 w-36 shrink-0 rounded-lg bg-muted" />
               )}
-              {listRating && (
-                <div className="absolute top-3 -left-2 -rotate-6">
-                  <span className="rounded-md px-3 py-1 bg-primary text-white shadow-primary/50 shadow-lg">
-                    #{record.sort_order_anime}
-                  </span>
-                </div>
-              )}
+              <TierBadge tier={record.tier} />
 
               {listBadge && (record.sort_order_movie || record.sort_order_series) && (
                 <div className="absolute bottom-3 -left-2 -rotate-6">

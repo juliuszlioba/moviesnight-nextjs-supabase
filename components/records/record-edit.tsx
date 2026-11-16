@@ -39,7 +39,9 @@ import { Input } from "../ui/input";
 import RecordDeleteButton from "./record-delete";
 import RecordListItemSortOrderForm from "./record-list-item-sort-order";
 import { Spinner } from "../ui/spinner";
+import { TIERS, TIER_STYLES, isTier } from "@/lib/tiers";
 import { Textarea } from "../ui/textarea";
+import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { updateRecord } from "@/lib/actions";
@@ -70,6 +72,7 @@ export function RecordEditForm({
     defaultValues: {
       id: record.id,
       rating: String(record.rating ?? 0),
+      tier: isTier(record.tier) ? record.tier : "none",
       recommendation: record.recommendation
         ? String(record.recommendation)
         : "",
@@ -137,6 +140,45 @@ export function RecordEditForm({
                     {ratingOptions.map((rating) => (
                       <SelectItem key={rating.value} value={rating.value}>
                         {rating.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
+            )}
+          />
+
+          <Controller
+            name="tier"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid} className="w-auto">
+                <Select
+                  name={field.name}
+                  value={field.value}
+                  onValueChange={field.onChange}
+                >
+                  <SelectTrigger
+                    id="form-rhf-select-tier"
+                    aria-label="Tier"
+                    aria-invalid={fieldState.invalid}
+                  >
+                    <SelectValue placeholder="Tier" />
+                  </SelectTrigger>
+                  <SelectContent position="item-aligned">
+                    <SelectItem value="none">No tier</SelectItem>
+                    <SelectSeparator />
+                    {TIERS.map((tier) => (
+                      <SelectItem key={tier} value={tier}>
+                        <span
+                          className={cn(
+                            "inline-flex w-6 justify-center rounded px-1 font-bold",
+                            TIER_STYLES[tier],
+                          )}
+                        >
+                          {tier}
+                        </span>
+                        Tier
                       </SelectItem>
                     ))}
                   </SelectContent>

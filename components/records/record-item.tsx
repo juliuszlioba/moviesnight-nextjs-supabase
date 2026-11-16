@@ -6,6 +6,7 @@ import { isFuture } from "date-fns";
 import Image from "next/image";
 import Link from "next/link";
 import { StarRating } from "../StarRating";
+import { TierBadge } from "../TierBadge";
 import { buttonVariants } from "../ui/button";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/server";
@@ -51,6 +52,7 @@ export default async function RecordItem({
               unoptimized={true}
             />
           )}
+          <TierBadge tier={record.tier} />
         </div>
         <div className="flex flex-col">
           <h2 className="flex items-start justify-between gap-2 pt-4 text-2xl md:justify-start font-light">

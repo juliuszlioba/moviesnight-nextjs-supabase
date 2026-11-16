@@ -65,6 +65,7 @@ export type Database = {
           sort_order_anime: number | null
           sort_order_movie: number | null
           sort_order_series: number | null
+          tier: string | null
           title: string
           tmdbid: number | null
           updatedat: string | null
@@ -83,6 +84,7 @@ export type Database = {
           sort_order_anime?: number | null
           sort_order_movie?: number | null
           sort_order_series?: number | null
+          tier?: string | null
           title: string
           tmdbid?: number | null
           updatedat?: string | null
@@ -101,6 +103,7 @@ export type Database = {
           sort_order_anime?: number | null
           sort_order_movie?: number | null
           sort_order_series?: number | null
+          tier?: string | null
           title?: string
           tmdbid?: number | null
           updatedat?: string | null
