@@ -31,3 +31,14 @@ export function formatDisplayDate(value: string | Date): string {
     day: "2-digit",
   }).format(new Date(value));
 }
+
+/** Home page filters. Anime = any record with a sort_order_anime value. */
+export const RECORD_FILTERS = ["all", "movies", "series", "anime"] as const;
+export type RecordFilter = (typeof RECORD_FILTERS)[number];
+
+/** Parse a `?type=` value into a RecordFilter (defaults to "all"). */
+export function parseRecordFilter(value: string | undefined): RecordFilter {
+  return RECORD_FILTERS.includes(value as RecordFilter)
+    ? (value as RecordFilter)
+    : "all";
+}

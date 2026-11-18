@@ -2,7 +2,7 @@
 // would expose every exported function as a public, callable endpoint.
 import "server-only";
 
-import { GRID_POSTS_LIMIT, POSTS_LIMIT } from "./config";
+import { GRID_POSTS_LIMIT, POSTS_LIMIT, type RecordFilter } from "./config";
 
 import { TMDBresultsEntity } from "./tmdb.types";
 import { createClient } from "@/lib/supabase/server";
@@ -17,19 +17,45 @@ function pageRange(curentPage: number, postLimit: number) {
   return [postLimit * (page - 1), postLimit * page - 1] as const;
 }
 
+/**
+ * Narrow a records query to one home page filter. Anime is any record with a
+ * sort_order_anime value; "movies" and "series" exclude anime so the filters
+ * don't overlap.
+ */
+function applyRecordFilter<
+  Q extends {
+    eq(column: "mediatype", value: string): Q;
+    is(column: "sort_order_anime", value: null): Q;
+    not(column: "sort_order_anime", operator: "is", value: null): Q;
+  },
+>(query: Q, filter: RecordFilter): Q {
+  switch (filter) {
+    case "movies":
+      return query.eq("mediatype", "movie").is("sort_order_anime", null);
+    case "series":
+      return query.eq("mediatype", "series").is("sort_order_anime", null);
+    case "anime":
+      return query.not("sort_order_anime", "is", null);
+    default:
+      return query;
+  }
+}
+
 export async function fetchAllRecords({
   curentPage = 1,
   grid = false,
+  filter = "all",
 }: {
   curentPage?: number;
   grid?: boolean;
+  filter?: RecordFilter;
 }) {
   const postLimit = grid ? GRID_POSTS_LIMIT : POSTS_LIMIT;
   const supabase = await createClient();
 
-  const { data: posts, count, error } = await supabase
-    .from("records")
-    .select("*", { count: "exact" })
+  const query = supabase.from("records").select("*", { count: "exact" });
+
+  const { data: posts, count, error } = await applyRecordFilter(query, filter)
     .order("watchedat", { ascending: false })
     .range(...pageRange(curentPage, postLimit));
 
@@ -39,6 +65,33 @@ export async function fetchAllRecords({
   }
 
   return { posts, count: count || 0 };
+}
+
+/** Number of records per home page filter. */
+export async function fetchRecordCounts(): Promise<
+  Record<RecordFilter, number>
+> {
+  const supabase = await createClient();
+  const countFor = async (filter: RecordFilter) => {
+    const query = supabase
+      .from("records")
+      .select("id", { count: "exact", head: true });
+    const { count, error } = await applyRecordFilter(query, filter);
+    if (error) {
+      console.error("Database Error:", error);
+      throw new Error("Failed to count Posts.");
+    }
+    return count || 0;
+  };
+
+  const [all, movies, series, anime] = await Promise.all([
+    countFor("all"),
+    countFor("movies"),
+    countFor("series"),
+    countFor("anime"),
+  ]);
+
+  return { all, movies, series, anime };
 }
 
 export async function searchRecords({
