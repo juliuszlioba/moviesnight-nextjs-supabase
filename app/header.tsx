@@ -47,32 +47,32 @@ export default async function Header() {
           <DropdownMenuContent align="end" sideOffset={12}>
             <DropdownMenuItem className="text-base" asChild>
               <Link href="/anime/tier" className="flex items-center">
-                <Heart strokeWidth={1.5} className="mr-2 h-5 w-5" />
+                <Heart strokeWidth={1.5} className="h-5 w-5" />
                 Anime Tier List
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem className="text-base" asChild>
               <Link href="/anime" className="flex items-center">
-                <Heart strokeWidth={1.5} className="mr-2 h-5 w-5" />
+                <Heart strokeWidth={1.5} className="h-5 w-5" />
                 Anime Tops
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem className="text-base" asChild>
               <Link href="/top/movies" className="flex items-center">
-                <Clapperboard strokeWidth={1.5} className="mr-2 h-5 w-5" />
+                <Clapperboard strokeWidth={1.5} className="h-5 w-5" />
                 Movies Tops
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem className="text-base" asChild>
               <Link href="/top/series" className="flex items-center">
-                <Tv strokeWidth={1.5} className="mr-2 h-5 w-5" />
+                <Tv strokeWidth={1.5} className="h-5 w-5" />
                 Series Tops
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="text-base" asChild>
               <Link href="/search" className="flex items-center">
-                <Search strokeWidth={1.5} className="mr-2 h-5 w-5" />
+                <Search strokeWidth={1.5} className="h-5 w-5" />
                 Search
               </Link>
             </DropdownMenuItem>

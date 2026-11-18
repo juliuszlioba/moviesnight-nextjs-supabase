@@ -193,7 +193,9 @@ export async function fetchAllAnimeTierRecords() {
   const query = () =>
     supabase
       .from("records")
-      .select("id, title, year, poster, slug, mediatype, tier")
+      .select(
+        "id, title, year, poster, slug, mediatype, tier, rating, recommendation, review",
+      )
       .not("sort_order_anime", "is", null)
       .order("sort_order_anime", { ascending: true });
 
