@@ -1,1 +1,0 @@
-ALTER DATABASE postgres SET timezone TO 'Europe/Vienna';
