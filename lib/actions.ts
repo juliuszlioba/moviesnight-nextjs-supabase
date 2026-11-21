@@ -8,6 +8,11 @@ import {
 
 import { TMDBresultsEntity } from "./tmdb.types";
 import { createClient } from "./supabase/server";
+import {
+  type TmdbSyncResult,
+  markTmdbWatched,
+  syncTmdbRating,
+} from "./tmdb-account";
 import { revalidatePath } from "next/cache";
 import slugify from "./slugify";
 
@@ -15,6 +20,19 @@ export interface Status {
   status: "success" | "duplicate" | "error" | "unauthorised";
   message?: string;
   redirectTo?: string;
+  /** Set when the record saved but syncing to the TMDB account failed. */
+  warning?: string;
+}
+
+/** Warning for the UI, or undefined when every TMDB sync went fine. */
+function tmdbSyncWarning(results: TmdbSyncResult[]): string | undefined {
+  if (results.includes("unauthorized")) {
+    return "Saved, but the TMDB session expired. Run `pnpm tmdb:session` and update TMDB_SESSION_ID.";
+  }
+  if (results.includes("failed")) {
+    return "Saved, but syncing to TMDB failed.";
+  }
+  return undefined;
 }
 
 // Postgres unique_violation
@@ -105,9 +123,15 @@ export async function addRecord({
 
     revalidateRecordPages();
 
+    const tmdbSync = await markTmdbWatched({
+      mediatype: dataLoad.mediatype,
+      tmdbid: dataLoad.tmdbid,
+    });
+
     return {
       status: "success",
       redirectTo: `/${dataLoad.mediatype}/${dataLoad.year}/${dataLoad.slug}`,
+      warning: tmdbSyncWarning([tmdbSync]),
     };
   } catch (error) {
     console.error("Database Error. ", error);
@@ -134,6 +158,13 @@ export async function updateRecord({
   const values = parsed.data;
 
   try {
+    // Previous TMDB id, so a changed id doesn't leave a stale TMDB rating
+    const { data: previous } = await supabase
+      .from("records")
+      .select("tmdbid")
+      .eq("id", values.id)
+      .maybeSingle();
+
     const { data, error } = await supabase
       .from("records")
       .update({
@@ -148,7 +179,7 @@ export async function updateRecord({
         updatedat: new Date().toISOString(),
       })
       .eq("id", values.id)
-      .select("mediatype, year, slug")
+      .select("mediatype, year, slug, tmdbid, rating")
       .single();
 
     if (error) {
@@ -164,9 +195,28 @@ export async function updateRecord({
 
     revalidateRecordPages();
 
+    const syncs = [
+      syncTmdbRating({
+        mediatype: data.mediatype,
+        tmdbid: data.tmdbid,
+        rating: data.rating ?? 0,
+      }),
+    ];
+    if (previous?.tmdbid && previous.tmdbid !== data.tmdbid) {
+      syncs.push(
+        syncTmdbRating({
+          mediatype: data.mediatype,
+          tmdbid: previous.tmdbid,
+          rating: 0,
+        }),
+      );
+    }
+    const results = await Promise.all(syncs);
+
     return {
       status: "success",
       redirectTo: `/${data.mediatype}/${data.year}/${data.slug}`,
+      warning: tmdbSyncWarning(results),
     };
   } catch (error) {
     console.error("Database Error. ", error);

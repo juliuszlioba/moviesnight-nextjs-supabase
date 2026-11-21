@@ -7,6 +7,7 @@ import { PlusCircleIcon } from 'lucide-react'
 import { Spinner } from '../ui/spinner'
 import { TMDBresultsEntity } from '@/lib/tmdb.types'
 import { cn } from '@/lib/utils'
+import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
@@ -19,8 +20,9 @@ export default function RecordAdd({ record }: { record: TMDBresultsEntity }) {
 	const handleAdd = async () => {
 		setLoading(true)
 
-		const { status, redirectTo } = await addRecord({ record })
+		const { status, redirectTo, warning } = await addRecord({ record })
 		if (status === 'success') {
+			if (warning) toast.warning(warning)
 			push(redirectTo || '/')
 		} else {
 			setError({ status })

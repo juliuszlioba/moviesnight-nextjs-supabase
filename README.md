@@ -80,8 +80,18 @@ pnpm supabase stop
 | `NEXT_PUBLIC_SUPABASE_URL`             | Supabase project URL                         |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable (anon) key              |
 | `TMDB_API_KEY`                         | TMDB API key, used server-side only          |
+| `TMDB_SESSION_ID`                      | Optional. TMDB session for syncing to your TMDB account (see below) |
 | `NEXT_PUBLIC_POSTS_LIMIT`              | Records per page in list views (default `20`) |
 | `NEXT_PUBLIC_POSTS_GRID_LIMIT`         | Records per page in grid views (default `40`) |
+
+### TMDB account sync
+
+With `TMDB_SESSION_ID` set, the app mirrors changes to your TMDB account:
+
+- **Adding a record** removes the title from your TMDB watchlist.
+- **Saving a score** (1–10) sets your TMDB rating to the same value; a score of `0` removes the TMDB rating. Rated titles are what TMDB treats as watched.
+
+To create the session id, run `pnpm tmdb:session`, approve the request in the browser, and copy the printed value into `.env`. The session does not expire, but it can be revoked from your TMDB account settings. If syncing fails, the record is still saved and a warning is shown; if TMDB rejects the session, the warning tells you to run `pnpm tmdb:session` again and update `TMDB_SESSION_ID`.
 
 ## Scripts
 
@@ -91,6 +101,7 @@ pnpm supabase stop
 | `pnpm build`           | Create a production build      |
 | `pnpm start`           | Serve the production build     |
 | `pnpm lint`            | Run ESLint                     |
+| `pnpm tmdb:session`    | Create a TMDB session id for account sync |
 
 ### Database
 

@@ -93,12 +93,16 @@ export function RecordEditForm({
     if (loading) return;
     setLoading(true);
     try {
-      const { status, message, redirectTo } = await updateRecord({
+      const { status, message, redirectTo, warning } = await updateRecord({
         formValues,
       });
 
       if (status === "success") {
-        toast.success("Saved");
+        if (warning) {
+          toast.warning(warning);
+        } else {
+          toast.success("Saved");
+        }
         push(redirectTo ?? `/${record.mediatype}/${record.year}/${record.slug}`);
         return;
       }

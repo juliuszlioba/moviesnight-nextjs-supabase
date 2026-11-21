@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "tmdb:session": "node --env-file=.env scripts/tmdb-session.mjs"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.10",
