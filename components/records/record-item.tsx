@@ -39,6 +39,31 @@ export default async function RecordItem({
     tmdbid: record.tmdbid,
   });
 
+  const externalLinks = (
+    <div className="flex gap-2">
+      {record.mediatype && record.tmdbid && (
+        <a
+          className={cn(buttonVariants({ variant: "outline" }))}
+          href={`https://www.themoviedb.org/${record.mediatype === "movie" ? "movie" : "tv"}/${record.tmdbid}`}
+          target="_blank"
+          rel="noreferrer"
+        >
+          Read More
+        </a>
+      )}
+      {record.anilistid && (
+        <a
+          className={cn(buttonVariants({ variant: "outline" }))}
+          href={`https://anilist.co/anime/${record.anilistid}`}
+          target="_blank"
+          rel="noreferrer"
+        >
+          AniList
+        </a>
+      )}
+    </div>
+  );
+
   return (
     <>
       <div className="flex gap-4">
@@ -85,44 +110,14 @@ export default async function RecordItem({
             )}
             <div className="hidden space-y-2 pb-4 sm:block">
               <p>{metadata?.overview}</p>
-              <div className="flex">
-                {record.mediatype && record.tmdbid && (
-                  <a
-                    className={cn(
-                      buttonVariants({
-                        variant: "outline",
-                      }),
-                    )}
-                    href={`https://www.themoviedb.org/${record.mediatype === "movie" ? "movie" : "tv"}/${record.tmdbid}`}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Read More
-                  </a>
-                )}
-              </div>
+              {externalLinks}
             </div>
           </div>
         </div>
       </div>
       <div className="space-y-2 py-2 sm:hidden">
         <p>{metadata?.overview}</p>
-        <div className="flex">
-          {record.mediatype && record.tmdbid && (
-            <a
-              className={cn(
-                buttonVariants({
-                  variant: "outline",
-                }),
-              )}
-              href={`https://www.themoviedb.org/${record.mediatype === "movie" ? "movie" : "tv"}/${record.tmdbid}`}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Read More
-            </a>
-          )}
-        </div>
+        {externalLinks}
       </div>
 
       <div className="mt-4 flex flex-col gap-4 border-t-2 border-dashed border-muted py-4">

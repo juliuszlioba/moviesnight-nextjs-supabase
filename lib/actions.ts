@@ -6,6 +6,7 @@ import {
   SortListType,
 } from "./schemas";
 
+import { type AnilistMedia, searchAnilistAnime } from "./anilist";
 import { TMDBresultsEntity } from "./tmdb.types";
 import { createClient } from "./supabase/server";
 import {
@@ -171,6 +172,7 @@ export async function updateRecord({
         title: values.title,
         slug: values.slug,
         tmdbid: values.tmdbid === "" ? null : Number(values.tmdbid),
+        anilistid: values.anilistid === "" ? null : Number(values.anilistid),
         rating: Number(values.rating),
         tier: values.tier === "none" ? null : values.tier,
         recommendation: values.recommendation,
@@ -222,6 +224,33 @@ export async function updateRecord({
     console.error("Database Error. ", error);
     return { status: "error" };
   }
+}
+
+// ANILIST > SEARCH : Find anime to link a record to
+export async function searchAnilist({
+  query,
+}: {
+  query: string;
+}): Promise<
+  | { status: "success"; results: AnilistMedia[] }
+  | { status: "error" | "unauthorised"; message?: string }
+> {
+  const { user } = await getAuthedClient();
+
+  if (!user) {
+    return { status: "unauthorised" };
+  }
+
+  const search = typeof query === "string" ? query.trim() : "";
+  if (!search || search.length > 200) {
+    return { status: "error", message: "Enter a title to search." };
+  }
+
+  const results = await searchAnilistAnime(search);
+  if (!results) {
+    return { status: "error", message: "AniList search failed." };
+  }
+  return { status: "success", results };
 }
 
 // RECORDS > DELETE

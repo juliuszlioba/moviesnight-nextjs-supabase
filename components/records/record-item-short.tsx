@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { RecordEditForm } from "./record-edit";
+import { fetchAnilistAnime } from "@/lib/anilist";
 import { notFound } from "next/navigation";
 import { readRecord } from "@/lib/records";
 import { toInt } from "radash";
@@ -24,6 +25,8 @@ export default async function RecordItemShort({
     notFound();
   }
 
+  const anilistMedia = await fetchAnilistAnime(record.anilistid);
+
   return (
     <div>
       <div className="flex pb-4">
@@ -47,7 +50,7 @@ export default async function RecordItemShort({
 				</div>
 			</div>
 
-      <RecordEditForm record={record}/>
+      <RecordEditForm record={record} anilistMedia={anilistMedia} />
     </div>
   );
 }

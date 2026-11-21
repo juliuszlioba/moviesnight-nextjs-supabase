@@ -30,6 +30,12 @@ export const RecordEditFormSchema = z.object({
     .trim()
     .regex(/^\d*$/, "TMDB id must be a number")
     .refine((v) => v === "" || Number(v) <= 2147483647, "TMDB id too large"),
+  // Same as tmdbid; empty = not linked to AniList
+  anilistid: z
+    .string()
+    .trim()
+    .regex(/^\d*$/, "AniList id must be a number")
+    .refine((v) => v === "" || Number(v) <= 2147483647, "AniList id too large"),
 });
 
 export type RecordEditFormValues = z.infer<typeof RecordEditFormSchema>;

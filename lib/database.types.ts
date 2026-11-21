@@ -54,6 +54,7 @@ export type Database = {
       }
       records: {
         Row: {
+          anilistid: number | null
           createdat: string | null
           id: number
           mediatype: string
@@ -73,6 +74,7 @@ export type Database = {
           year: number
         }
         Insert: {
+          anilistid?: number | null
           createdat?: string | null
           id?: number
           mediatype: string
@@ -92,6 +94,7 @@ export type Database = {
           year: number
         }
         Update: {
+          anilistid?: number | null
           createdat?: string | null
           id?: number
           mediatype?: string

@@ -32,6 +32,8 @@ import {
   type RecordEditFormValues,
 } from "@/lib/schemas";
 
+import { AnilistLink } from "./anilist-link";
+import type { AnilistMedia } from "@/lib/anilist";
 import { Button } from "../ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Database } from "@/lib/database.types";
@@ -65,8 +67,11 @@ const ratingOptions = [
 
 export function RecordEditForm({
   record,
+  anilistMedia,
 }: {
   record: Database["public"]["Tables"]["records"]["Row"];
+  /** AniList details for record.anilistid, when linked and reachable. */
+  anilistMedia: AnilistMedia | null;
 }) {
   const form = useForm<RecordEditFormValues>({
     resolver: zodResolver(RecordEditFormSchema),
@@ -82,6 +87,7 @@ export function RecordEditForm({
       title: record.title,
       slug: record.slug,
       tmdbid: record.tmdbid ? String(record.tmdbid) : "",
+      anilistid: record.anilistid ? String(record.anilistid) : "",
     },
   });
 
@@ -297,6 +303,25 @@ export function RecordEditForm({
             )}
           />
         </FieldGroup>
+
+        {/* Anime only: records in the Top Anime list, or already linked */}
+        {(record.sort_order_anime !== null || record.anilistid !== null) && (
+          <Controller
+            name="anilistid"
+            control={form.control}
+            render={({ field }) => (
+              <AnilistLink
+                value={field.value}
+                onChange={(value) =>
+                  form.setValue("anilistid", value, { shouldDirty: true })
+                }
+                savedValue={record.anilistid ? String(record.anilistid) : ""}
+                initialMedia={anilistMedia}
+                defaultQuery={record.title}
+              />
+            )}
+          />
+        )}
 
         <details
           className="group rounded-xl bg-card/25"

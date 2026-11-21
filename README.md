@@ -20,6 +20,7 @@
 - **Top lists** — hand-ordered favourite movies and series.
 - **Anime ranking** — ordered list of every finished anime, with a drag-and-drop sort editor (mouse and touch).
 - **Anime tier list** — S–F tiers with posters, ratings and recommendation tooltips; tiers can be suggested from the rating.
+- **AniList links** — records in the Top Anime list can be searched for and linked to their [AniList](https://anilist.co/) page from the edit screen.
 - **Admin tools** — add titles straight from a TMDB search, edit and delete records. Single-user: sign-ups are disabled and editing requires login.
 
 ## Tech stack
