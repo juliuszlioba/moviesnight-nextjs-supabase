@@ -2,6 +2,8 @@ import { TIERS, TIER_STYLES, isTier, type Tier } from "@/lib/tiers";
 import { fetchAllAnimeTierRecords, type AnimeTierRecord } from "@/lib/records";
 
 import Header from "../../header";
+import { Spinner } from "@/components/ui/spinner";
+import { Suspense } from "react";
 import { MessageCircle } from "lucide-react";
 import { StarRating } from "@/components/StarRating";
 import Image from "next/image";
@@ -30,7 +32,27 @@ const ROWS: { key: RowKey; label: string; style: string }[] = [
   { key: "unranked", label: "?", style: "bg-muted text-muted-foreground" },
 ];
 
-export default async function AnimeTierPage() {
+export default function AnimeTierPage() {
+  return (
+    <div>
+      <Header />
+      <main className="flex flex-col space-y-4 mb-auto">
+        <Suspense
+          fallback={
+            <>
+              <h1>Anime tier list</h1>
+              <Spinner />
+            </>
+          }
+        >
+          <AnimeTierList />
+        </Suspense>
+      </main>
+    </div>
+  );
+}
+
+async function AnimeTierList() {
   const { posts } = await fetchAllAnimeTierRecords();
 
   // Posts arrive in anime sort order, so each group keeps that order
@@ -42,62 +64,59 @@ export default async function AnimeTierPage() {
   }
 
   return (
-    <div>
-      <Header />
-      <main className="flex flex-col space-y-4 mb-auto">
-        <div className="flex items-baseline justify-between gap-4">
-          <h1>Anime tier list</h1>
-          <p className="text-sm text-muted-foreground">{posts.length} anime</p>
-        </div>
-        <TooltipProvider>
-          <div className="flex flex-col gap-6 sm:gap-8">
-            {ROWS.map(({ key, label, style }) => {
-              const records = groups.get(key)!;
-              if (key === "unranked" && records.length === 0) return null;
+    <>
+      <div className="flex items-baseline justify-between gap-4">
+        <h1>Anime tier list</h1>
+        <p className="text-sm text-muted-foreground">{posts.length} anime</p>
+      </div>
+      <TooltipProvider>
+        <div className="flex flex-col gap-6 sm:gap-8">
+          {ROWS.map(({ key, label, style }) => {
+            const records = groups.get(key)!;
+            if (key === "unranked" && records.length === 0) return null;
 
-              return (
-                <section
-                  key={key}
-                  aria-label={key === "unranked" ? "Unranked" : `${label} Tier`}
-                  className="flex gap-3 sm:gap-6"
-                >
-                  <div
-                    className={cn(
-                      "w-14 shrink-0 rounded-2xl shadow-lg sm:w-20",
-                      style,
-                    )}
-                  >
-                    <div className="sticky top-4 flex flex-col items-center gap-1 py-4 sm:py-6">
-                      <span className="text-3xl leading-none font-bold sm:text-5xl">
-                        {label}
-                      </span>
-                      <span className="text-[10px] font-semibold tracking-widest uppercase opacity-90 sm:text-sm">
-                        {key === "unranked" ? "None" : "Tier"}
-                      </span>
-                      <span className="my-1 h-px w-6 bg-current opacity-60 sm:w-10" />
-                      <span className="text-sm tabular-nums opacity-90">
-                        {records.length}
-                      </span>
-                    </div>
-                  </div>
-                  {records.length > 0 ? (
-                    <div className="grid min-w-0 flex-1 grid-cols-2 content-start gap-x-3 gap-y-5 sm:grid-cols-4 sm:gap-x-4 sm:gap-y-6 lg:grid-cols-5">
-                      {records.map((record) => (
-                        <TierCard key={record.id} record={record} />
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="flex min-h-32 flex-1 items-center justify-center rounded-2xl border border-dashed text-sm text-muted-foreground">
-                      Nothing here yet
-                    </p>
+            return (
+              <section
+                key={key}
+                aria-label={key === "unranked" ? "Unranked" : `${label} Tier`}
+                className="flex gap-3 sm:gap-6"
+              >
+                <div
+                  className={cn(
+                    "w-14 shrink-0 rounded-2xl shadow-lg sm:w-20",
+                    style,
                   )}
-                </section>
-              );
-            })}
-          </div>
-        </TooltipProvider>
-      </main>
-    </div>
+                >
+                  <div className="sticky top-4 flex flex-col items-center gap-1 py-4 sm:py-6">
+                    <span className="text-3xl leading-none font-bold sm:text-5xl">
+                      {label}
+                    </span>
+                    <span className="text-[10px] font-semibold tracking-widest uppercase opacity-90 sm:text-sm">
+                      {key === "unranked" ? "None" : "Tier"}
+                    </span>
+                    <span className="my-1 h-px w-6 bg-current opacity-60 sm:w-10" />
+                    <span className="text-sm tabular-nums opacity-90">
+                      {records.length}
+                    </span>
+                  </div>
+                </div>
+                {records.length > 0 ? (
+                  <div className="grid min-w-0 flex-1 grid-cols-2 content-start gap-x-3 gap-y-5 sm:grid-cols-4 sm:gap-x-4 sm:gap-y-6 lg:grid-cols-5">
+                    {records.map((record) => (
+                      <TierCard key={record.id} record={record} />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="flex min-h-32 flex-1 items-center justify-center rounded-2xl border border-dashed text-sm text-muted-foreground">
+                    Nothing here yet
+                  </p>
+                )}
+              </section>
+            );
+          })}
+        </div>
+      </TooltipProvider>
+    </>
   );
 }
 
@@ -157,9 +176,7 @@ function TierCard({ record }: { record: AnimeTierRecord }) {
             </TooltipTrigger>
             <TooltipContent className="max-w-64 py-2">
               {record.recommendation ? (
-                <p className="quate text-yellow-400">
-                  {record.recommendation}
-                </p>
+                <p className="quate text-yellow-400">{record.recommendation}</p>
               ) : (
                 comment
               )}

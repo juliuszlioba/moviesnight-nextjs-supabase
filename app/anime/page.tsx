@@ -5,6 +5,8 @@ import RecordsListAnime from "@/components/records/records-list-top-anime";
 import { buttonVariants } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 import { parsePage } from "@/lib/config";
+import { Spinner } from "@/components/ui/spinner";
+import { Suspense } from "react";
 
 export default async function AnimePage({
   searchParams,
@@ -31,7 +33,7 @@ export default async function AnimePage({
               href="/anime/tier"
               className={buttonVariants({ variant: "outline", size: "sm" })}
             >
-              <Rows3 strokeWidth={1.5} />
+              <Rows3 strokeWidth={2} />
               Tier list
             </Link>
             {user && (
@@ -39,13 +41,15 @@ export default async function AnimePage({
                 href="/anime/sort"
                 className={buttonVariants({ variant: "outline", size: "sm" })}
               >
-                <ArrowUpDown strokeWidth={1.5} />
+                <ArrowUpDown strokeWidth={2} />
                 Sort
               </Link>
             )}
           </div>
         </div>
-        <RecordsListAnime currentPage={currentPage} />
+        <Suspense key={currentPage} fallback={<Spinner />}>
+          <RecordsListAnime currentPage={currentPage} />
+        </Suspense>
       </main>
     </div>
   );

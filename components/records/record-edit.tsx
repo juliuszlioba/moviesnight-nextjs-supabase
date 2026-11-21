@@ -378,7 +378,7 @@ export function RecordEditForm({
                         })
                       }
                     >
-                      <RefreshCw strokeWidth={1.5} />
+                      <RefreshCw strokeWidth={2} />
                       From title
                     </Button>
                   </div>
@@ -465,7 +465,7 @@ export function RecordEditForm({
               variant={"destructive"}
               className="gap-2 text-red-500 text-opacity-40"
             >
-              <Trash strokeWidth={1.5} />
+              <Trash strokeWidth={2} />
               Delete
             </Button>
           </AlertDialogTrigger>
@@ -491,7 +491,7 @@ export function RecordEditForm({
           className="gap-2"
           form="form-rhf-edit-record"
         >
-          <Save strokeWidth={1.5} />{" "}
+          <Save strokeWidth={2} />{" "}
           {!loading ? <span>Save</span> : <Spinner />}
         </Button>
       </div>

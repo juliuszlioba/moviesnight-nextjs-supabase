@@ -45,7 +45,7 @@ export default function RecordListItem({
               {listBadge && (record.sort_order_movie || record.sort_order_series) && (
                 <div className="absolute bottom-3 -left-2 -rotate-6">
                   <span className="rounded-md p-1.5 text-white flex items-center bg-yellow-400 shadow-yellow-500/50 shadow-lg">
-                    <ThumbsUp strokeWidth={1.5} className="text-background" />
+                    <ThumbsUp strokeWidth={2} className="text-background" />
                   </span>
                 </div>
               )}
@@ -75,7 +75,7 @@ export default function RecordListItem({
                       variant={"outline"}
                       className="gap-1"
                     >
-                      <MessageCircle strokeWidth={1.5} className="h-6 w-6" />
+                      <MessageCircle strokeWidth={2} className="h-6 w-6" />
                       More...
                     </Button>
                   )}
@@ -100,7 +100,7 @@ export default function RecordListItem({
                   onClick={() => setOpenReview(!reviewOpen)}
                   variant={"ghost"}
                 >
-                  <MessageCircle strokeWidth={1.5} className="h-6 w-6" />
+                  <MessageCircle strokeWidth={2} className="h-6 w-6" />
                   More...
                 </Button>
               )}

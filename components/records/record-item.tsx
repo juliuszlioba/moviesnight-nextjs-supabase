@@ -98,7 +98,7 @@ export default async function RecordItem({
           <div className="mt-auto">
             {metadata?.runtime && (
               <div className="flex items-center gap-1 pb-2 text-gray-400">
-                <Clock strokeWidth={1.5} className="h-5 w-5" />
+                <Clock strokeWidth={2} className="h-5 w-5" />
                 {`${metadata?.runtime} min.`}
               </div>
             )}
@@ -135,7 +135,7 @@ export default async function RecordItem({
 
         {(record.sort_order_movie || record.sort_order_series) && (
           <div className="flex flex-wrap items-center justify-start gap-2 border-t-2 border-dashed border-muted pt-4">
-            <ThumbsUp strokeWidth={1.5} className="text-yellow-400" />
+            <ThumbsUp strokeWidth={2} className="text-yellow-400" />
             Highly recommended to see!
           </div>
         )}
@@ -144,7 +144,7 @@ export default async function RecordItem({
       <div className="flex justify-between border-t-2 border-dashed border-muted py-4">
         {record.watchedat && (
           <div className="flex items-center gap-2">
-            <CalendarCheck strokeWidth={1.5} />
+            <CalendarCheck strokeWidth={2} />
             {isFuture(new Date(record.watchedat))
               ? "Will finish at"
               : "Watched at"}{" "}
@@ -163,7 +163,7 @@ export default async function RecordItem({
                 "gap-2",
               )}
             >
-              <FileEdit strokeWidth={1.5} /> Edit
+              <FileEdit strokeWidth={2} /> Edit
             </Link>
           </div>
         )}

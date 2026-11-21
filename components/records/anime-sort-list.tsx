@@ -172,7 +172,7 @@ export default function AnimeSortList({
               className="-m-2 shrink-0 touch-none p-2"
             >
               <GripVertical
-                strokeWidth={1.5}
+                strokeWidth={2}
                 className="h-5 w-5 text-muted-foreground transition-opacity sm:opacity-40 sm:group-hover:opacity-100"
               />
             </span>

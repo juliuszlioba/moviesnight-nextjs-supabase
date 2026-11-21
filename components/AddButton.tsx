@@ -20,7 +20,7 @@ export default async function AddButton() {
         "px-3",
       )}
     >
-      <PlusCircle strokeWidth={1.5} />
+      <PlusCircle strokeWidth={2} />
     </Link>
   ) : null;
 }

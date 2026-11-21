@@ -10,7 +10,7 @@ export default function RouteError({ reset }: { reset: () => void }) {
   return (
     <div className="flex w-full items-center justify-center my-auto">
       <main className="flex flex-col space-y-4 mb-auto items-center">
-        <FileWarning size={36} strokeWidth={1.5} />
+        <FileWarning size={36} strokeWidth={2} />
         <h2 className="text-2xl">Sorry, something went wrong</h2>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => reset()}>

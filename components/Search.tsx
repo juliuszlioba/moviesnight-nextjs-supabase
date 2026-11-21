@@ -58,7 +58,7 @@ export default function Search({ placeholder }: { placeholder: string }) {
           )}
         />
         <Button type="submit" variant={"default"} className="gap-2">
-          <SearchIcon strokeWidth={1.5} />
+          <SearchIcon strokeWidth={2} />
           Search
         </Button>
       </form>

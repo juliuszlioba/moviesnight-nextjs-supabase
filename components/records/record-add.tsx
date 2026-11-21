@@ -84,7 +84,7 @@ export default function RecordAdd({ record }: { record: TMDBresultsEntity }) {
 	return (
 		<div>
 			<Button variant={'default'} className="gap-2" onClick={() => handleAdd()}>
-				<PlusCircleIcon strokeWidth={1.5} />
+				<PlusCircleIcon strokeWidth={2} />
 				Add
 			</Button>
 		</div>

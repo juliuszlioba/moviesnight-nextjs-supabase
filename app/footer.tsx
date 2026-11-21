@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 export default function SiteFooter() {
 	return (
-		<footer className="space-y-4 p-4 mt-auto">
+		<footer className="space-y-6 pt-12 pb-6 mt-auto">
 			<div>
 				<Image
 					src="/img/svg/movieNight_logo.svg"

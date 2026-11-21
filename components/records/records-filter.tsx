@@ -49,7 +49,7 @@ export function RecordsFilterTabs({
               "max-sm:px-2",
             )}
           >
-            <Icon strokeWidth={1.5} className="max-sm:hidden" />
+            <Icon strokeWidth={2} className="max-sm:hidden" />
             <span className="flex items-baseline gap-1">
               {label}
               {counts && (

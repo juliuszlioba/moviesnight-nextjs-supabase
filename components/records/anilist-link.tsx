@@ -152,7 +152,7 @@ export function AnilistLink({
                   className="gap-2"
                   onClick={() => onChange("")}
                 >
-                  <Unlink strokeWidth={1.5} /> Unlink
+                  <Unlink strokeWidth={2} /> Unlink
                 </Button>
               }
             />
@@ -172,7 +172,7 @@ export function AnilistLink({
                 className="gap-2"
                 onClick={() => onChange("")}
               >
-                <Unlink strokeWidth={1.5} /> Unlink
+                <Unlink strokeWidth={2} /> Unlink
               </Button>
             </div>
           )
@@ -202,7 +202,7 @@ export function AnilistLink({
             disabled={searching || !query.trim()}
             onClick={runSearch}
           >
-            {searching ? <Spinner /> : <Search strokeWidth={1.5} />}
+            {searching ? <Spinner /> : <Search strokeWidth={2} />}
             Search
           </Button>
         </div>
@@ -227,7 +227,7 @@ export function AnilistLink({
                         className="gap-2"
                         onClick={() => link(media)}
                       >
-                        <Link2 strokeWidth={1.5} /> Link
+                        <Link2 strokeWidth={2} /> Link
                       </Button>
                     )
                   }
