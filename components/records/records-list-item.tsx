@@ -28,7 +28,7 @@ export default function RecordListItem({
   return (
     <>
       <div className="py-4 first:pt-0">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
           <div className="flex gap-4">
             <div className="relative flex shrink-0 flex-col">
               {record.poster ? (
@@ -55,12 +55,12 @@ export default function RecordListItem({
               )}
             </div>
             <div className="flex w-full flex-col">
-              <div className="flex items-start justify-between gap-2 pt-4 md:justify-start">
+              <div className="flex items-start justify-between gap-2 pt-4 sm:justify-start">
                 <Link
                   href={`/${record.mediatype}/${record.year}/${record.slug}`}
                   className="-ml-1 rounded-md px-1.5 py-0.5 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
                 >
-                  <h2 className="text-xl md:text-2xl font-light">
+                  <h2 className="text-xl sm:text-2xl font-light">
                     {record.title}
                   </h2>
                 </Link>
@@ -68,7 +68,7 @@ export default function RecordListItem({
               <p className="text-sm text-gray-400">{record.year}</p>
 
               {(record.recommendation || record.review) && (
-                <div className="mt-auto hidden items-center gap-2 pb-4 md:flex">
+                <div className="mt-auto hidden items-center gap-2 pb-4 sm:flex">
                   {record.recommendation && (
                     <p className={`quote`}>{record.recommendation}</p>
                   )}
@@ -95,7 +95,7 @@ export default function RecordListItem({
 
           {(record.recommendation || record.review) && (
             <div
-              className={`flex items-center justify-between gap-2 pt-2 md:hidden`}
+              className={`flex items-center justify-between gap-2 pt-2 sm:hidden`}
             >
               {record.recommendation && (
                 <p className={`quote gap-2`}>{record.recommendation}</p>
