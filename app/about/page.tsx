@@ -6,17 +6,18 @@ export default async function AboutPage() {
 	const supabase = await createClient()
 	const { count } = await supabase
 		.from('records')
-		.select('*', { count: 'exact' })
+		.select('*', { count: 'exact', head: true })
 
 	return (
-		<main>
+		<>
       <Header />
+      <main id="main-content">
 			<div className="flex flex-col gap-6">
 				<div>
-					<h1 className="pb-2 text-3xl">What is this website?</h1>
+					<h1 className="pb-2 text-3xl text-balance">What Is This Website?</h1>
 
           <p>This website serves as a simple, personal list of movies and series I&apos;ve recently watched. There are currently {' '}
-						<span className="text-lg font-semibold text-primary">{count}</span>{' '} titles on the list since I started tracking my viewing on March 13, 2016. Some records were added retroactively with approximate viewing dates. I <span className="text-lg font-semibold text-primary">do not</span> add unfinished movies or dropped series, with the exception of a few exceptionally good shows that I am currently watching and definitely intend to finish.</p>
+						<span className="text-lg font-semibold text-primary">{new Intl.NumberFormat('en').format(count ?? 0)}</span>{' '} titles on the list since I started tracking my viewing on March 13, 2016. Some records were added retroactively with approximate viewing dates. I <span className="text-lg font-semibold text-primary">do not</span> add unfinished movies or dropped series, with the exception of a few exceptionally good shows that I am currently watching and definitely intend to finish.</p>
 
 				</div>
 				<div>
@@ -28,7 +29,7 @@ export default async function AboutPage() {
 							rel="noreferrer"
 							className="hover:text-fuchsia-700"
 						>
-							TMDb API
+							TMDb API<span className="sr-only"> (opens in new tab)</span>
 						</a>{' '}
 						but is not endorsed or certified by{' '}
 						<a
@@ -37,7 +38,7 @@ export default async function AboutPage() {
 							rel="noreferrer"
 							className="hover:text-fuchsia-700"
 						>
-							TMDb
+							TMDb<span className="sr-only"> (opens in new tab)</span>
 						</a>
 					</p>
 					<a
@@ -48,7 +49,7 @@ export default async function AboutPage() {
 					>
 						<Image
 							src="/img/svg/themoviedb_logo-full.svg"
-							alt="TMDb Logo"
+							alt="TMDb (opens in new tab)"
 							width={185.04}
 							height={133.4}
 							className="w-24"
@@ -57,5 +58,6 @@ export default async function AboutPage() {
 				</div>
 			</div>
 		</main>
+		</>
 	)
 }

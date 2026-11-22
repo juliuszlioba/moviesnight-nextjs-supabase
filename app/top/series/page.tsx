@@ -17,8 +17,8 @@ export default async function TopSeriesPage({
   return (
     <div>
       <Header />
-      <main className="flex flex-col space-y-4 mb-auto">
-        <h1>Highly recommended series by me</h1>
+      <main id="main-content" className="flex flex-col space-y-4 mb-auto">
+        <h1 className="text-balance">Highly Recommended Series</h1>
         <Suspense key={currentPage} fallback={<Spinner />}>
           <RecordsListTopSeries currentPage={currentPage} />
         </Suspense>

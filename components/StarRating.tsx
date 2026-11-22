@@ -1,4 +1,4 @@
-const StarEmty = () => (
+const StarEmpty = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="24"
@@ -32,127 +32,27 @@ const StarFull = () => (
   </svg>
 );
 
+/** 0–10 rating shown as five stars (each point is half a star). */
 export const StarRating = ({ rating }: { rating: number }) => {
-  switch (rating) {
-    case 10:
-      return (
-        <div className="flex gap-1 text-yellow-400">
-          <StarFull />
-          <StarFull />
-          <StarFull />
-          <StarFull />
-          <StarFull />
-        </div>
-      );
-    case 9:
-      return (
-        <div className="flex gap-1 text-yellow-400">
-          <StarFull />
-          <StarFull />
-          <StarFull />
-          <StarFull />
-          <StarHalf />
-        </div>
-      );
-    case 8:
-      return (
-        <div className="flex gap-1 text-yellow-400">
-          <StarFull />
-          <StarFull />
-          <StarFull />
-          <StarFull />
-          <StarEmty />
-        </div>
-      );
-    case 7:
-      return (
-        <div className="flex gap-1 text-yellow-400">
-          <StarFull />
-          <StarFull />
-          <StarFull />
-          <StarHalf />
-          <StarEmty />
-        </div>
-      );
-    case 6:
-      return (
-        <div className="flex gap-1 text-muted">
-          <StarFull />
-          <StarFull />
-          <StarFull />
-          <StarEmty />
-          <StarEmty />
-        </div>
-      );
-    case 5:
-      return (
-        <div className="flex gap-1 text-muted">
-          <StarFull />
-          <StarFull />
-          <StarHalf />
-          <StarEmty />
-          <StarEmty />
-        </div>
-      );
-    case 4:
-      return (
-        <div className="flex gap-1 text-muted">
-          <StarFull />
-          <StarFull />
-          <StarEmty />
-          <StarEmty />
-          <StarEmty />
-        </div>
-      );
-    case 3:
-      return (
-        <div className="flex gap-1 text-muted">
-          <StarFull />
-          <StarHalf />
-          <StarEmty />
-          <StarEmty />
-          <StarEmty />
-        </div>
-      );
-    case 2:
-      return (
-        <div className="flex gap-1 text-muted">
-          <StarFull />
-          <StarEmty />
-          <StarEmty />
-          <StarEmty />
-          <StarEmty />
-        </div>
-      );
-    case 1:
-      return (
-        <div className="flex gap-1 text-muted">
-          <StarHalf />
-          <StarEmty />
-          <StarEmty />
-          <StarEmty />
-          <StarEmty />
-        </div>
-      );
-    case 0:
-      return (
-        <div className="flex gap-1 text-muted">
-          <StarEmty />
-          <StarEmty />
-          <StarEmty />
-          <StarEmty />
-          <StarEmty />
-        </div>
-      );
-    default:
-      return (
-        <div className="flex gap-1 text-muted">
-          <StarEmty />
-          <StarEmty />
-          <StarEmty />
-          <StarEmty />
-          <StarEmty />
-        </div>
-      );
-  }
+  const valid = Number.isInteger(rating) && rating >= 0 && rating <= 10;
+  const value = valid ? rating : 0;
+  const full = Math.floor(value / 2);
+  const half = value % 2;
+  const empty = 5 - full - half;
+
+  return (
+    <div
+      role="img"
+      aria-label={value > 0 ? `Rated ${value / 2} out of 5` : "Not rated"}
+      className={`flex gap-1 ${value >= 7 ? "text-yellow-400" : "text-muted"}`}
+    >
+      {Array.from({ length: full }, (_, i) => (
+        <StarFull key={`f${i}`} />
+      ))}
+      {half > 0 && <StarHalf />}
+      {Array.from({ length: empty }, (_, i) => (
+        <StarEmpty key={`e${i}`} />
+      ))}
+    </div>
+  );
 };

@@ -17,19 +17,14 @@ export default async function Login(props: {
   const { error } = (await props.searchParams) || {};
 
   return (
-    <div className="flex w-full items-center justify-center my-auto">
+    <main id="main-content" className="flex w-full items-center justify-center my-auto">
       <div className="w-full max-w-sm">
         <Card>
           <CardHeader>
-            <CardTitle className="text-4xl font-light">Login</CardTitle>
+            <CardTitle className="text-4xl font-light">Log In</CardTitle>
             <CardDescription>
-              Enter your email and password below to login
+              Enter your email and password below to log in.
             </CardDescription>
-            {error && (
-              <p role="alert" className="text-sm text-destructive">
-                Invalid email or password.
-              </p>
-            )}
           </CardHeader>
 
           <CardContent>
@@ -40,8 +35,12 @@ export default async function Login(props: {
                     id="email"
                     type="email"
                     autoComplete="username"
+                    aria-label="Email"
+                    aria-invalid={error ? true : undefined}
+                    aria-describedby={error ? "login-error" : undefined}
+                    spellCheck={false}
                     name="email"
-                    placeholder="email"
+                    placeholder="you@example.com"
                     required
                   />
                 </Field>
@@ -51,19 +50,28 @@ export default async function Login(props: {
                     id="password"
                     type="password"
                     name="password"
-                    placeholder="password"
+                    placeholder="Password"
                     autoComplete="current-password"
+                    aria-label="Password"
+                    aria-invalid={error ? true : undefined}
+                    aria-describedby={error ? "login-error" : undefined}
                     required
                   />
                 </Field>
+
+                {error && (
+                  <p id="login-error" role="alert" className="text-sm text-destructive">
+                    Invalid email or password. Check your details and try again.
+                  </p>
+                )}
 
                 <FieldGroup>
                   <Field>
                     <SubmitButton
                       formAction={signIn}
-                      pendingText="Logging In..."
+                      pendingText="Logging In…"
                     >
-                      Login
+                      Log In
                     </SubmitButton>
                   </Field>
                 </FieldGroup>
@@ -72,6 +80,6 @@ export default async function Login(props: {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </main>
   );
 }

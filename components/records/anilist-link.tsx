@@ -48,6 +48,8 @@ function MediaRow({
         <img
           src={media.coverImage.medium}
           alt=""
+          width={44}
+          height={64}
           className="h-16 w-11 shrink-0 rounded border border-gray-900 bg-gray-800 object-cover"
           loading="lazy"
         />
@@ -62,6 +64,7 @@ function MediaRow({
           className="line-clamp-1 font-medium hover:underline"
         >
           {mediaTitle(media)}
+          <span className="sr-only"> (opens in new tab)</span>
         </a>
         {romaji && (
           <p className="line-clamp-1 text-xs text-muted-foreground">{romaji}</p>
@@ -118,8 +121,9 @@ export function AnilistLink({
       }
     } catch {
       toast.error("AniList search failed");
+    } finally {
+      setSearching(false);
     }
-    setSearching(false);
   }
 
   function onKeyDown(e: KeyboardEvent<HTMLInputElement>) {
@@ -165,6 +169,7 @@ export function AnilistLink({
                 className="inline-flex items-center gap-1 hover:underline"
               >
                 AniList #{value} <ExternalLink className="size-4" />
+                <span className="sr-only"> (opens in new tab)</span>
               </a>
               <Button
                 type="button"

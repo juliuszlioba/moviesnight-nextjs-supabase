@@ -10,9 +10,11 @@ export default async function PostEditPage(
  const params = await props.params;
 
   return (
-    <main>
+    <>
       <Header />
+      <main id="main-content">
       <RecordItemShort year={params.year} slug={params.slug} />
     </main>
+    </>
   );
 }

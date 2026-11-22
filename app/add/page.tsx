@@ -1,5 +1,6 @@
 import Header from "../header";
 import Search from "@/components/Search";
+import { Spinner } from "@/components/ui/spinner";
 import { Suspense } from "react";
 import TmdbList from "@/components/records/tmdb-list";
 
@@ -11,17 +12,19 @@ export default async function RecordAddPage(props: {
   const searchParams = await props.searchParams;
 
   return (
-    <main>
+    <>
       <Header />
+      <main id="main-content">
       <div className="space-y-4">
-        <Search placeholder="Search TMDB" />
+        <Search placeholder="Search TMDB…" />
 
         {searchParams?.search && (
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<Spinner />}>
             <TmdbList searchQuery={searchParams?.search} />
           </Suspense>
         )}
       </div>
     </main>
+    </>
   );
 }

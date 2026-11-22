@@ -17,11 +17,11 @@ export default async function AnimeSortPage() {
   return (
     <div>
       <Header />
-      <main className="flex flex-col space-y-4 mb-auto">
+      <main id="main-content" className="flex flex-col space-y-4 mb-auto">
         <Suspense
           fallback={
             <>
-              <h1>Sort anime list</h1>
+              <h1 className="text-balance">Sort Anime List</h1>
               <Spinner />
             </>
           }
@@ -39,9 +39,9 @@ async function AnimeSortContent() {
   return (
     <>
       <div className="flex items-baseline justify-between gap-4">
-        <h1>Sort anime list</h1>
+        <h1 className="text-balance">Sort Anime List</h1>
         <p className="text-sm text-muted-foreground">
-          {posts.length} records · drag a row or tap its # to move it
+          {posts.length} records · drag a row, tap its #, or press Alt+↑/↓ on it
         </p>
       </div>
       <AnimeSortList records={posts} />

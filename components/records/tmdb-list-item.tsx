@@ -1,3 +1,4 @@
+import { ExternalLink } from 'lucide-react'
 import Image from 'next/image'
 import RecordAdd from './record-add'
 import type { TMDBresultsEntity } from '@/lib/tmdb.types'
@@ -9,7 +10,7 @@ export default function TmdbListItem({ record }: { record: TMDBresultsEntity }) 
 		return (
 			<div className="border-b-2 border-dashed border-muted py-4 first:pt-0 last:border-none">
 				<div className="flex items-center justify-between gap-3 md:gap-6">
-					<div className="flex gap-3">
+					<div className="flex min-w-0 gap-3">
 						{record.poster_path && (
 							<Image
 								src={`https://image.tmdb.org/t/p/w200${record.poster_path}`}
@@ -21,7 +22,7 @@ export default function TmdbListItem({ record }: { record: TMDBresultsEntity }) 
 							/>
 						)}
 
-						<div className="flex flex-col">
+						<div className="flex min-w-0 flex-col">
 							<h2 className={`text-xl ${record.poster_path && 'pt-4'}`}>
 								{record.title || record.name}
 							</h2>
@@ -32,14 +33,16 @@ export default function TmdbListItem({ record }: { record: TMDBresultsEntity }) 
 								<a
 									href={`https://www.themoviedb.org/${record.media_type}/${record.id}`}
 									target="_blank"
-									rel="noreferrer nofolllow"
+									rel="noreferrer nofollow"
 									className={cn(
 										buttonVariants({
 											variant: 'outline',
 										})
 									)}
 								>
-									More
+									View on TMDB
+									<ExternalLink strokeWidth={2} />
+									<span className="sr-only"> (opens in new tab)</span>
 								</a>
 							</div>
 						</div>

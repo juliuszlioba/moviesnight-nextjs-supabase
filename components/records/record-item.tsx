@@ -1,4 +1,10 @@
-import { CalendarCheck, Clock, FileEdit, ThumbsUp } from "lucide-react";
+import {
+  CalendarCheck,
+  Clock,
+  ExternalLink,
+  FileEdit,
+  ThumbsUp,
+} from "lucide-react";
 import { fetchRecordMetadata, readRecord } from "@/lib/records";
 import { formatDisplayDate } from "@/lib/config";
 import { isFuture } from "date-fns";
@@ -40,7 +46,7 @@ export default async function RecordItem({
   });
 
   const externalLinks = (
-    <div className="flex gap-2">
+    <div className="flex flex-wrap gap-2">
       {record.mediatype && record.tmdbid && (
         <a
           className={cn(buttonVariants({ variant: "outline" }))}
@@ -48,7 +54,9 @@ export default async function RecordItem({
           target="_blank"
           rel="noreferrer"
         >
-          Read More
+          View on TMDB
+          <ExternalLink strokeWidth={2} />
+          <span className="sr-only"> (opens in new tab)</span>
         </a>
       )}
       {record.anilistid && (
@@ -58,7 +66,9 @@ export default async function RecordItem({
           target="_blank"
           rel="noreferrer"
         >
-          AniList
+          View on AniList
+          <ExternalLink strokeWidth={2} />
+          <span className="sr-only"> (opens in new tab)</span>
         </a>
       )}
     </div>
@@ -76,14 +86,15 @@ export default async function RecordItem({
               height={300}
               className="h-75 w-50 shrink-0 overflow-hidden rounded-md border-2 border-gray-900 bg-gray-800"
               unoptimized={true}
+              preload
             />
           )}
           <TierBadge tier={record.tier} />
         </div>
         <div className="flex flex-col">
-          <h2 className="flex items-start justify-between gap-2 pt-4 text-2xl md:justify-start font-light">
+          <h1 className="flex items-start justify-between gap-2 pt-4 text-2xl md:justify-start font-light">
             {record?.title}
-          </h2>
+          </h1>
           <p className="mb-6 text-sm text-gray-400">
             {record?.year && record.year}
           </p>
@@ -99,7 +110,7 @@ export default async function RecordItem({
             {metadata?.runtime && (
               <div className="flex items-center gap-1 pb-2 text-gray-400">
                 <Clock strokeWidth={2} className="h-5 w-5" />
-                {`${metadata?.runtime} min.`}
+                {`${metadata?.runtime} min`}
               </div>
             )}
             {metadata?.seasons && (
@@ -123,20 +134,20 @@ export default async function RecordItem({
       <div className="mt-4 flex flex-col gap-4 border-t-2 border-dashed border-muted py-4">
         {<StarRating rating={record.rating || 0} />}
         {record.recommendation && (
-          <p className="quate text-lg text-yellow-400">
+          <p className="quote text-lg text-yellow-400">
             {record.recommendation}
           </p>
         )}
         {record.review && (
           <div className="border-t-2 border-dashed border-muted pt-4">
-            <p className="quate">{record.review}</p>
+            <p className="quote whitespace-pre-line break-words">{record.review}</p>
           </div>
         )}
 
         {(record.sort_order_movie || record.sort_order_series) && (
           <div className="flex flex-wrap items-center justify-start gap-2 border-t-2 border-dashed border-muted pt-4">
             <ThumbsUp strokeWidth={2} className="text-yellow-400" />
-            Highly recommended to see!
+            Highly recommended!
           </div>
         )}
       </div>
@@ -146,8 +157,8 @@ export default async function RecordItem({
           <div className="flex items-center gap-2">
             <CalendarCheck strokeWidth={2} />
             {isFuture(new Date(record.watchedat))
-              ? "Will finish at"
-              : "Watched at"}{" "}
+              ? "Will finish on"
+              : "Watched on"}{" "}
             {formatDisplayDate(record.watchedat)}
           </div>
         )}

@@ -2,11 +2,12 @@ import Header from "../header";
 
 export default async function PrivacyPage() {
   return (
-    <main>
+    <>
       <Header />
+      <main id="main-content">
       <div className="flex flex-col gap-6">
         <header className="mb-12">
-          <h1 className="text-3xl font-bodl tracking-tight mb-4">
+          <h1 className="text-3xl font-bold tracking-tight text-balance mb-4">
             Privacy Policy
           </h1>
           <p className="text-sm text-muted-foreground">
@@ -56,7 +57,7 @@ export default async function PrivacyPage() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                View Vercel Privacy Policy
+                View Vercel Privacy Policy<span className="sr-only"> (opens in new tab)</span>
               </a>
             </p>
           </section>
@@ -97,5 +98,6 @@ export default async function PrivacyPage() {
         </div>
       </div>
     </main>
+    </>
   );
 }

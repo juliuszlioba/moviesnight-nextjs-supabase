@@ -12,7 +12,7 @@ export default async function RecordsListAll({
   filter?: RecordFilter;
 }) {
   const { posts, count } = await fetchAllRecords({
-    curentPage: currentPage,
+    currentPage,
     filter,
   });
 
@@ -31,12 +31,12 @@ export default async function RecordsListAll({
   return (
     <div className="divide-y-2 divide-dashed">
       <div className="divide-y-2 divide-dashed">
-        {posts.map((post) => {
-          return <RecordListItem key={post.id} record={post} />;
+        {posts.map((post, index) => {
+          return <RecordListItem key={post.id} record={post} preload={index < 2} />;
         })}
       </div>
       <Pagination
-        curentPage={currentPage}
+        currentPage={currentPage}
         totalCount={count}
         query={filter === "all" ? undefined : { type: filter }}
       />

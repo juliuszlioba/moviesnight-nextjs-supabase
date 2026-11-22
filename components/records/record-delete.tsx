@@ -1,10 +1,9 @@
 'use client'
 
-import { Button, buttonVariants } from '../ui/button'
-import { Status, deleteRecord } from '@/lib/actions'
-
+import { Button } from '../ui/button'
 import { Spinner } from '../ui/spinner'
-import { cn } from '@/lib/utils'
+import { deleteRecord } from '@/lib/actions'
+import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
@@ -16,44 +15,37 @@ export default function RecordDeleteButton({
 	const { push } = useRouter()
 
 	const [loading, setLoading] = useState(false)
-	const [error, setError] = useState<Status | undefined>(undefined)
 
 	const handleDelete = async () => {
+		if (loading) return
 		setLoading(true)
 
-		const { status } = await deleteRecord({ id })
-		if (status === 'success') {
-			push('/')
-		} else {
-			setError({ status })
+		try {
+			const { status } = await deleteRecord({ id })
+			if (status === 'success') {
+				push('/')
+				return
+			}
+			toast.error(
+				status === 'unauthorised'
+					? 'You’re logged out. Log in and try again.'
+					: 'Couldn’t delete this record. Try again.'
+			)
+		} catch {
+			toast.error('Couldn’t delete this record. Try again.')
 		}
-
 		setLoading(false)
 	}
 
-	if (error) {
-		return (
-			<div
-				className={cn(
-					buttonVariants({
-						variant: 'destructive',
-					})
-				)}
-			>
-				Error!
-			</div>
-		)
-	}
-
 	return (
-		<div>
-			{loading ? (
-				<Spinner />
-			) : (
-				<Button onClick={handleDelete} variant={'destructive'}>
-					I am sure
-				</Button>
-			)}
-		</div>
+		<Button
+			onClick={handleDelete}
+			variant={'destructive'}
+			className="gap-2"
+			disabled={loading}
+		>
+			{loading && <Spinner />}
+			{loading ? 'Deleting…' : 'Delete Record'}
+		</Button>
 	)
 }

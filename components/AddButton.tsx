@@ -13,6 +13,7 @@ export default async function AddButton() {
   return user ? (
     <Link
       href="/add"
+      aria-label="Add title"
       className={cn(
         buttonVariants({
           variant: "ghost",

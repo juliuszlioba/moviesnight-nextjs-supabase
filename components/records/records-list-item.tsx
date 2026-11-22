@@ -14,9 +14,12 @@ import { useState } from "react";
 export default function RecordListItem({
   record,
   listBadge = true,
+  preload = false,
 }: {
   record: Database["public"]["Tables"]["records"]["Row"];
   listBadge?: boolean;
+  /** Preload the poster (first rows, likely the LCP image) */
+  preload?: boolean;
 }) {
   const [reviewOpen, setOpenReview] = useState(false);
 
@@ -36,6 +39,7 @@ export default function RecordListItem({
                   height={300}
                   className="h-52 w-36 shrink-0 overflow-hidden rounded-lg bg-muted"
                   unoptimized={true}
+                  preload={preload}
                 />
               ) : (
                 <div className="h-52 w-36 shrink-0 rounded-lg bg-muted" />
@@ -54,7 +58,7 @@ export default function RecordListItem({
               <div className="flex items-start justify-between gap-2 pt-4 md:justify-start">
                 <Link
                   href={`/${record.mediatype}/${record.year}/${record.slug}`}
-                  className="-ml-1 rounded-md px-1.5 py-0.5 focus:ring-2 focus:ring-primary focus-visible:outline-none"
+                  className="-ml-1 rounded-md px-1.5 py-0.5 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
                 >
                   <h2 className="text-xl md:text-2xl font-light">
                     {record.title}
@@ -66,17 +70,18 @@ export default function RecordListItem({
               {(record.recommendation || record.review) && (
                 <div className="mt-auto hidden items-center gap-2 pb-4 md:flex">
                   {record.recommendation && (
-                    <p className={`quate`}>{record.recommendation}</p>
+                    <p className={`quote`}>{record.recommendation}</p>
                   )}
 
                   {record.review && (
                     <Button
                       onClick={() => setOpenReview(!reviewOpen)}
+                      aria-expanded={reviewOpen}
                       variant={"outline"}
                       className="gap-1"
                     >
                       <MessageCircle strokeWidth={2} className="h-6 w-6" />
-                      More...
+                      More…
                     </Button>
                   )}
                 </div>
@@ -93,15 +98,16 @@ export default function RecordListItem({
               className={`flex items-center justify-between gap-2 pt-2 md:hidden`}
             >
               {record.recommendation && (
-                <p className={`quate gap-2`}>{record.recommendation}</p>
+                <p className={`quote gap-2`}>{record.recommendation}</p>
               )}
               {record.review && (
                 <Button
                   onClick={() => setOpenReview(!reviewOpen)}
+                      aria-expanded={reviewOpen}
                   variant={"ghost"}
                 >
                   <MessageCircle strokeWidth={2} className="h-6 w-6" />
-                  More...
+                  More…
                 </Button>
               )}
             </div>
@@ -117,7 +123,7 @@ export default function RecordListItem({
             leaveFrom="transform opacity-100"
             leaveTo="transform opacity-0"
           >
-            <p className="mt-4 block rounded-md bg-muted px-4 py-3">
+            <p className="mt-4 block whitespace-pre-line break-words rounded-md bg-muted px-4 py-3">
               {record.review}
             </p>
           </Transition>

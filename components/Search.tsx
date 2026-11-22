@@ -48,7 +48,9 @@ export default function Search({ placeholder }: { placeholder: string }) {
             <Field className="w-full" data-invalid={fieldState.invalid}>
               <Input
                 type="search"
-                aria-label={placeholder}
+                aria-label={placeholder.replace(/…$/, "")}
+                autoComplete="off"
+                spellCheck={false}
                 placeholder={placeholder}
                 {...field}
                 aria-invalid={fieldState.invalid}

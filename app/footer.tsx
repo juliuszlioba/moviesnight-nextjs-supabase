@@ -3,11 +3,11 @@ import Link from 'next/link'
 
 export default function SiteFooter() {
 	return (
-		<footer className="space-y-6 pt-12 pb-6 mt-auto">
+		<footer className="space-y-6 pt-12 pb-[max(1.5rem,env(safe-area-inset-bottom))] mt-auto">
 			<div>
 				<Image
 					src="/img/svg/movieNight_logo.svg"
-					alt="moviesNight Logo"
+					alt=""
 					width={175}
 					height={175}
 					className="mx-auto"
@@ -20,7 +20,7 @@ export default function SiteFooter() {
 					<a
 						href="https://juliuszlioba.com"
 						rel="noopener"
-						className="ml-2 rounded-full px-2 py-1 hover:text-primary focus:ring-2 focus:ring-primary focus-visible:outline-none"
+						className="ml-2 rounded-full px-2 py-1 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
 					>
 						{`${new Date().getFullYear()}`} &copy; juliuszlioba.com
 					</a>
@@ -28,13 +28,13 @@ export default function SiteFooter() {
 				<div className='flex gap-4'>
 				<Link
 					href="/about"
-					className="rounded-full px-2 py-1 hover:text-primary focus:ring-2 focus:ring-primary focus-visible:outline-none"
+					className="rounded-full px-2 py-1 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
 				>
 					About
 				</Link>
 				<Link
 					href="/privacy"
-					className="rounded-full px-2 py-1 hover:text-primary focus:ring-2 focus:ring-primary focus-visible:outline-none"
+					className="rounded-full px-2 py-1 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
 				>
 					Privacy
 				</Link>

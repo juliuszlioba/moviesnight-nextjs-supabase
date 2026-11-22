@@ -18,8 +18,9 @@ export default async function SearchPage(props: {
   return (
     <div>
       <Header />
-      <main className="space-y-4">
-        <Search placeholder="Search website" />
+      <main id="main-content" className="space-y-4">
+        <h1 className="text-balance">Search</h1>
+        <Search placeholder="Search titles…" />
         {searchQuery && (
           <Suspense key={`${searchQuery}-${currentPage}`} fallback={<Spinner />}>
             <RecordsSearch searchQuery={searchQuery} currentPage={currentPage} />

@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 
 import { useFormStatus } from "react-dom";
 import { type ComponentProps } from "react";
@@ -16,6 +17,7 @@ export function SubmitButton({ children, pendingText, ...props }: Props) {
 
   return (
     <Button {...props} type="submit" disabled={pending}>
+      {isPending && <Spinner />}
       {isPending ? pendingText : children}
     </Button>
   );

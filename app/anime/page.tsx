@@ -25,16 +25,16 @@ export default async function AnimePage({
   return (
     <div>
       <Header />
-      <main className="flex flex-col space-y-4 mb-auto">
+      <main id="main-content" className="flex flex-col space-y-4 mb-auto">
         <div className="flex items-center justify-between gap-4">
-          <h1>Finished Anime in order of interest</h1>
+          <h1 className="text-balance">Finished Anime in Order of Interest</h1>
           <div className="flex shrink-0 items-center gap-2">
             <Link
               href="/anime/tier"
               className={buttonVariants({ variant: "outline", size: "sm" })}
             >
               <Rows3 strokeWidth={2} />
-              Tier list
+              Tier List
             </Link>
             {user && (
               <Link

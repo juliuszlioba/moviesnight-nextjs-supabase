@@ -125,15 +125,19 @@
   }
   html {
     @apply font-sans;
+    touch-action: manipulation;
+  }
+  .dark {
+    color-scheme: dark;
   }
 }
 
-.quate {
+.quote {
   @apply relative pl-4
 }
 
-.quate:before {
-  content: "\"";
+.quote:before {
+  content: "“";
   @apply text-yellow-400 text-3xl absolute left-0 -top-1
 }
 
@@ -150,11 +154,18 @@
 
 .ringIco circle {
   fill: none;
-  stroke: hsl(var(--primary));
+  stroke: var(--primary);
   stroke-dasharray: 1, 200;
   stroke-dashoffset: 0;
   stroke-linecap: round;
   animation: stretch calc(var(--uib-speed) * 0.75) ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ringIco,
+  .ringIco circle {
+    animation: none;
+  }
 }
 
 @keyframes rotate {

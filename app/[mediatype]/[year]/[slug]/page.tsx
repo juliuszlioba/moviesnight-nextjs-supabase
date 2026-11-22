@@ -10,9 +10,11 @@ export default async function RecordPage(props: {
   // unknown records, and that only yields a real 404 status if it happens
   // before the response starts streaming.
   return (
-    <main>
+    <>
       <Header />
+      <main id="main-content">
       <RecordItem year={params.year} slug={params.slug} />
     </main>
+    </>
   );
 }

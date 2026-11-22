@@ -22,7 +22,7 @@ export default async function AuthButton() {
   return user ? (
     <div className="flex items-center gap-4">
       <form action={signOut}>
-        <Button variant="ghost">
+        <Button variant="ghost" aria-label="Log out">
           <LogOut strokeWidth={2} />
         </Button>
       </form>
@@ -31,7 +31,8 @@ export default async function AuthButton() {
     <Button asChild variant="ghost">
       <Link
         href="/login"
-        className="py-2 px-3 flex rounded-md no-underline bg-btn-background hover:bg-btn-background-hover"
+        aria-label="Log in"
+        className="py-2 px-3 flex rounded-md no-underline"
       >
         <UserCircleIcon strokeWidth={2} />
       </Link>

@@ -22,6 +22,7 @@ export function TierBadge({
         title={`${tier} Tier`}
       >
         {tier}
+        <span className="sr-only"> Tier</span>
       </span>
     </div>
   );

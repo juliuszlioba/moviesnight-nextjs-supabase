@@ -11,6 +11,17 @@ import {
   removeRecordFromSortOrder,
 } from "@/lib/actions";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { SortListType } from "@/lib/schemas";
@@ -108,15 +119,18 @@ export default function RecordListItemSortOrderForm({
     );
   }
 
-  if (currentSortOrder === null || currentSortOrder === undefined) {
-    if (loading) {
-      return <Spinner />;
-    }
+  const listName = `Top ${capitalize(mediaType)}`;
 
+  if (currentSortOrder === null || currentSortOrder === undefined) {
     return (
       <div>
-        <Button onClick={() => handleAdd()}>
-          Add to TOP {capitalize(mediaType)} list
+        <Button
+          className="gap-2"
+          disabled={loading}
+          onClick={() => handleAdd()}
+        >
+          {loading && <Spinner />}
+          Add to {listName} List
         </Button>
       </div>
     );
@@ -140,6 +154,7 @@ export default function RecordListItemSortOrderForm({
                   value={field.value as number}
                   id={`${formId}-input`}
                   type="number"
+                  inputMode="numeric"
                   min={1}
                   aria-invalid={fieldState.invalid}
                   placeholder="Position"
@@ -153,26 +168,46 @@ export default function RecordListItemSortOrderForm({
             )}
           />
 
-          {loading ? (
-            <Spinner />
-          ) : (
-            <>
-              <Field orientation="horizontal" className="w-auto">
-                <Button type="submit" aria-label="Save position">
-                  <Save />
-                </Button>
-              </Field>
+          <Field orientation="horizontal" className="w-auto">
+            <Button
+              type="submit"
+              aria-label="Save position"
+              disabled={loading}
+            >
+              {loading ? <Spinner /> : <Save />}
+            </Button>
+          </Field>
 
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
               <Button
                 type="button"
                 variant="destructive"
                 aria-label="Remove from list"
-                onClick={() => handleRemove()}
+                disabled={loading}
               >
                 <Trash2 />
               </Button>
-            </>
-          )}
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Remove from {listName}?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This takes the record out of the {listName} list. You can add
+                  it back later, but it will go to the bottom of the list.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  variant="destructive"
+                  onClick={() => handleRemove()}
+                >
+                  Remove
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </FieldGroup>
       </form>
     </div>

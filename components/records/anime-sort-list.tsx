@@ -25,8 +25,16 @@ export default function AnimeSortList({
   const [savingId, setSavingId] = useState<number | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
 
+  // Screen-reader announcement for the last move
+  const [announcement, setAnnouncement] = useState("");
+
   const rowRefs = useRef<(HTMLLIElement | null)[]>([]);
   const pointerYRef = useRef(0);
+  // Row midpoints in page coordinates, measured once when a drag starts.
+  // Rows don't move during a drag, so this avoids a layout read per frame.
+  const midsRef = useRef<number[]>([]);
+  // Record whose # button should keep focus after a keyboard move
+  const focusIdRef = useRef<number | null>(null);
 
   const saving = savingId !== null;
   const dragging = dragIndex !== null;
@@ -52,13 +60,23 @@ export default function AnimeSortList({
       }
       if (dy !== 0) {
         window.scrollBy(0, dy);
-        setDropSlot(slotFromY(rowRefs.current, y));
+        setDropSlot(slotFromY(midsRef.current, y));
       }
       frame = requestAnimationFrame(tick);
     };
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
   }, [dragIndex]);
+
+  // Reordering can move the focused button in the DOM and drop its focus
+  useEffect(() => {
+    const id = focusIdRef.current;
+    if (id === null) return;
+    focusIdRef.current = null;
+    document
+      .querySelector<HTMLButtonElement>(`[data-move-id="${id}"]`)
+      ?.focus();
+  }, [items]);
 
   function resetDrag() {
     setDragIndex(null);
@@ -82,10 +100,14 @@ export default function AnimeSortList({
         newPosition: to + 1,
       });
       if (status !== "success") throw new Error(status);
-      toast.success(`Moved "${moved.title}" to #${to + 1}`);
+      toast.success(`Moved “${moved.title}” to #${to + 1}`);
+      setAnnouncement(
+        `Moved ${moved.title} to position ${to + 1} of ${next.length}`,
+      );
     } catch {
       setItems(previous);
-      toast.error("Error updating record position");
+      toast.error("Couldn’t move the record. Try again.");
+      setAnnouncement(`Couldn’t move ${moved.title}. It is back at #${from + 1}.`);
     } finally {
       setSavingId(null);
     }
@@ -103,15 +125,31 @@ export default function AnimeSortList({
     e.preventDefault();
     e.currentTarget.setPointerCapture(e.pointerId);
     pointerYRef.current = e.clientY;
+    midsRef.current = measureMidpoints(rowRefs.current.slice(0, items.length));
     setDragIndex(index);
-    setDropSlot(slotFromY(rowRefs.current, e.clientY));
+    setDropSlot(slotFromY(midsRef.current, e.clientY));
   }
 
   function handlePointerMove(e: React.PointerEvent<HTMLLIElement>) {
     if (dragIndex === null) return;
     pointerYRef.current = e.clientY;
-    const slot = slotFromY(rowRefs.current, e.clientY);
+    const slot = slotFromY(midsRef.current, e.clientY);
     if (slot !== dropSlot) setDropSlot(slot);
+  }
+
+  // Alt+↑/↓ on a row's # button nudges it one place
+  function handleMoveKeyDown(
+    e: React.KeyboardEvent<HTMLButtonElement>,
+    index: number,
+    id: number,
+  ) {
+    if (!e.altKey || (e.key !== "ArrowUp" && e.key !== "ArrowDown")) return;
+    e.preventDefault();
+    if (saving) return;
+    const to = e.key === "ArrowUp" ? index - 1 : index + 1;
+    if (to < 0 || to >= items.length) return;
+    focusIdRef.current = id;
+    void moveRecord(index, to);
   }
 
   function handlePointerUp() {
@@ -129,6 +167,10 @@ export default function AnimeSortList({
   }
 
   return (
+    <>
+    <p aria-live="polite" className="sr-only">
+      {announcement}
+    </p>
     <ol
       className={cn(
         "divide-y-2 divide-dashed select-none",
@@ -154,6 +196,8 @@ export default function AnimeSortList({
             onPointerCancel={resetDrag}
             className={cn(
               "group relative flex items-center gap-4 px-2 py-3",
+              // Skip rendering off-screen rows; every row is 122px tall
+              "[content-visibility:auto] [contain-intrinsic-size:auto_122px]",
               "transition-colors hover:bg-muted/50",
               saving
                 ? "cursor-progress"
@@ -205,10 +249,17 @@ export default function AnimeSortList({
                 <button
                   type="button"
                   data-no-drag
-                  disabled={saving}
-                  title="Move to position…"
-                  onClick={() => setEditingId(record.id)}
-                  className="absolute top-2 -left-2 -rotate-6 cursor-pointer rounded-md bg-primary px-1.5 py-0.5 text-xs tabular-nums text-white shadow-lg shadow-primary/50 disabled:cursor-progress"
+                  data-move-id={record.id}
+                  // aria-disabled, not disabled, so keyboard focus survives a save
+                  aria-disabled={saving}
+                  title="Move to position… (Alt+↑/↓ to nudge)"
+                  aria-label={`Move ${record.title}, currently #${index + 1}`}
+                  aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"
+                  onClick={() => {
+                    if (!saving) setEditingId(record.id);
+                  }}
+                  onKeyDown={(e) => handleMoveKeyDown(e, index, record.id)}
+                  className="absolute top-2 -left-2 -rotate-6 cursor-pointer rounded-md bg-primary px-1.5 py-0.5 text-xs tabular-nums text-white shadow-lg shadow-primary/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none aria-disabled:cursor-progress"
                 >
                   #{index + 1}
                 </button>
@@ -223,16 +274,25 @@ export default function AnimeSortList({
         );
       })}
     </ol>
+    </>
   );
 }
 
+// Vertical midpoint of each row, in page (not viewport) coordinates
+function measureMidpoints(rows: (HTMLLIElement | null)[]) {
+  return rows.map((row) => {
+    const rect = row?.getBoundingClientRect();
+    return rect ? rect.top + window.scrollY + rect.height / 2 : Infinity;
+  });
+}
+
 // Insertion slot under clientY: before the first row whose midpoint is below it
-function slotFromY(rows: (HTMLLIElement | null)[], y: number) {
-  for (let i = 0; i < rows.length; i++) {
-    const rect = rows[i]?.getBoundingClientRect();
-    if (rect && y < rect.top + rect.height / 2) return i;
+function slotFromY(mids: number[], clientY: number) {
+  const y = clientY + window.scrollY;
+  for (let i = 0; i < mids.length; i++) {
+    if (y < mids[i]) return i;
   }
-  return rows.length;
+  return mids.length;
 }
 
 function PositionInput({
@@ -305,7 +365,8 @@ function DropLine({ position }: { position: "top" | "bottom" }) {
       aria-hidden
       className={cn(
         "pointer-events-none absolute inset-x-0 h-0.5 rounded-full bg-primary",
-        position === "top" ? "-top-0.5" : "-bottom-0.5",
+        // Inside the row: off-screen-row containment would clip anything outside
+        position === "top" ? "top-0" : "bottom-0",
       )}
     />
   );

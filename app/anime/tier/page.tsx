@@ -36,11 +36,11 @@ export default function AnimeTierPage() {
   return (
     <div>
       <Header />
-      <main className="flex flex-col space-y-4 mb-auto">
+      <main id="main-content" className="flex flex-col space-y-4 mb-auto">
         <Suspense
           fallback={
             <>
-              <h1>Anime tier list</h1>
+              <h1 className="text-balance">Anime Tier List</h1>
               <Spinner />
             </>
           }
@@ -66,7 +66,7 @@ async function AnimeTierList() {
   return (
     <>
       <div className="flex items-baseline justify-between gap-4">
-        <h1>Anime tier list</h1>
+        <h1 className="text-balance">Anime Tier List</h1>
         <p className="text-sm text-muted-foreground">{posts.length} anime</p>
       </div>
       <TooltipProvider>
@@ -131,7 +131,7 @@ function TierCard({ record }: { record: AnimeTierRecord }) {
           <Link
             href={`/${record.mediatype}/${record.year}/${record.slug}`}
             aria-label={title}
-            className="block overflow-hidden rounded-lg bg-muted transition-transform hover:scale-[1.03] focus:ring-2 focus:ring-primary focus-visible:outline-none"
+            className="block overflow-hidden rounded-lg bg-muted motion-safe:transition-transform motion-safe:hover:scale-[1.03] focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
           >
             {record.poster ? (
               <Image
@@ -166,7 +166,7 @@ function TierCard({ record }: { record: AnimeTierRecord }) {
               <span
                 tabIndex={0}
                 aria-label={comment}
-                className="rounded-sm text-muted-foreground focus:ring-2 focus:ring-primary focus-visible:outline-none"
+                className="rounded-sm text-muted-foreground focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
               >
                 <MessageCircle
                   strokeWidth={2}
@@ -176,7 +176,7 @@ function TierCard({ record }: { record: AnimeTierRecord }) {
             </TooltipTrigger>
             <TooltipContent className="max-w-64 py-2">
               {record.recommendation ? (
-                <p className="quate text-yellow-400">{record.recommendation}</p>
+                <p className="quote text-yellow-400">{record.recommendation}</p>
               ) : (
                 comment
               )}

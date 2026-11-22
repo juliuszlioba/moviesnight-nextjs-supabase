@@ -11,7 +11,7 @@ export default async function RecordsSearch({
 }) {
   const { posts, count } = await searchRecords({
     searchQuery,
-    curentPage: currentPage,
+    currentPage,
   });
 
   if (!posts || posts.length === 0) {
@@ -21,12 +21,12 @@ export default async function RecordsSearch({
   return (
     <div className="divide-y-2 divide-dashed">
       <div className="divide-y-2 divide-dashed">
-        {posts.map((post) => (
-          <RecordListItem key={post.id} record={post} />
+        {posts.map((post, index) => (
+          <RecordListItem key={post.id} record={post} preload={index < 2} />
         ))}
       </div>
       <Pagination
-        curentPage={currentPage}
+        currentPage={currentPage}
         totalCount={count}
         basePath="/search"
         query={{ search: searchQuery }}

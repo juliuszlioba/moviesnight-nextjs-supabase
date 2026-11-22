@@ -1,6 +1,6 @@
 import { GRID_POSTS_LIMIT, POSTS_LIMIT } from "@/lib/config";
 
-import { Button } from "./ui/button";
+import { Button, buttonVariants } from "./ui/button";
 import { Input } from "./ui/input";
 import Link from "next/link";
 
@@ -20,13 +20,13 @@ function pageHref(
 }
 
 export default function Pagination({
-  curentPage,
+  currentPage,
   totalCount,
   basePath = "/",
   query,
   grid = false,
 }: {
-  curentPage: number;
+  currentPage: number;
   totalCount: number;
   /** Path of the listing page, e.g. "/top/movies" */
   basePath?: string;
@@ -42,8 +42,10 @@ export default function Pagination({
   }
 
   const pageButton = (number: number) =>
-    number === curentPage ? (
-      <Button aria-current="page">{number}</Button>
+    number === currentPage ? (
+      <span aria-current="page" className={buttonVariants()}>
+        {number}
+      </span>
     ) : (
       <Button variant={"outline"} asChild>
         <Link href={pageHref(basePath, query, number)}>{number}</Link>
@@ -55,18 +57,18 @@ export default function Pagination({
       aria-label="Pagination"
       className="flex w-full flex-col items-center gap-4 py-4 sm:flex-row sm:justify-between"
     >
-      <div className="max-sm:hidden">{`Page ${curentPage} of ${lastPage}`}</div>
+      <div className="tabular-nums max-sm:hidden">{`Page ${currentPage} of ${lastPage}`}</div>
       <div className="flex items-center gap-2">
         {pageButton(1)}
-        {curentPage > 4 && <p>...</p>}
-        {curentPage > 3 && pageButton(curentPage - 2)}
-        {curentPage > 2 && pageButton(curentPage - 1)}
-        {curentPage > 1 && curentPage < lastPage && (
-          pageButton(curentPage)
+        {currentPage > 4 && <span aria-hidden="true">…</span>}
+        {currentPage > 3 && pageButton(currentPage - 2)}
+        {currentPage > 2 && pageButton(currentPage - 1)}
+        {currentPage > 1 && currentPage < lastPage && (
+          pageButton(currentPage)
         )}
-        {curentPage < lastPage - 1 && pageButton(curentPage + 1)}
-        {curentPage < lastPage - 2 && pageButton(curentPage + 2)}
-        {curentPage < lastPage - 3 && <p>...</p>}
+        {currentPage < lastPage - 1 && pageButton(currentPage + 1)}
+        {currentPage < lastPage - 2 && pageButton(currentPage + 2)}
+        {currentPage < lastPage - 3 && <span aria-hidden="true">…</span>}
         {pageButton(lastPage)}
       </div>
       <form

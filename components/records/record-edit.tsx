@@ -45,11 +45,10 @@ import { TIERS, TIER_STYLES, isTier, tierForRating } from "@/lib/tiers";
 import { Textarea } from "../ui/textarea";
 import { cn } from "@/lib/utils";
 import slugify from "@/lib/slugify";
-import { format } from "date-fns";
 import { toast } from "sonner";
 import { updateRecord } from "@/lib/actions";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 const ratingOptions = [
@@ -59,11 +58,14 @@ const ratingOptions = [
   { label: "7 - Fine", value: "7" },
   { label: "6 - Mediocre", value: "6" },
   { label: "5 - Could be better", value: "5" },
-  { label: "4 - Forgetable", value: "4" },
+  { label: "4 - Forgettable", value: "4" },
   { label: "3 - Just Bad", value: "3" },
   { label: "2 - Waste of time", value: "2" },
   { label: "1 - Total garbage", value: "1" },
 ] as const;
+
+// en-CA formats dates as yyyy-MM-dd, in the browser's time zone like the picker
+const dateFormat = new Intl.DateTimeFormat("en-CA");
 
 export function RecordEditForm({
   record,
@@ -94,6 +96,15 @@ export function RecordEditForm({
   const [loading, setLoading] = useState(false);
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const { push } = useRouter();
+  const { isDirty } = form.formState;
+
+  // Warn before closing or reloading the tab with unsaved changes
+  useEffect(() => {
+    if (!isDirty) return;
+    const onBeforeUnload = (e: BeforeUnloadEvent) => e.preventDefault();
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [isDirty]);
 
   async function onSubmit(formValues: RecordEditFormValues) {
     if (loading) return;
@@ -153,7 +164,9 @@ export function RecordEditForm({
                   }}
                 >
                   <SelectTrigger
-                    id="form-rhf-select-language"
+                    ref={field.ref}
+                    id="form-rhf-select-rating"
+                    aria-label="Rating"
                     aria-invalid={fieldState.invalid}
                   >
                     <SelectValue placeholder="Select" />
@@ -183,6 +196,7 @@ export function RecordEditForm({
                   onValueChange={field.onChange}
                 >
                   <SelectTrigger
+                    ref={field.ref}
                     id="form-rhf-select-tier"
                     aria-label="Tier"
                     aria-invalid={fieldState.invalid}
@@ -220,6 +234,7 @@ export function RecordEditForm({
                   {...field}
                   aria-invalid={fieldState.invalid}
                   placeholder="recommendation"
+                  aria-label="Recommendation"
                   autoComplete="off"
                 />
                 {fieldState.invalid && (
@@ -238,9 +253,10 @@ export function RecordEditForm({
               <Field data-invalid={fieldState.invalid}>
                 <Textarea
                   {...field}
-                  id="form-rhf-textarea-about"
+                  id="form-rhf-textarea-review"
                   aria-invalid={fieldState.invalid}
                   placeholder="review"
+                  aria-label="Review"
                   className="min-h-30"
                 />
                 {fieldState.invalid && (
@@ -266,7 +282,7 @@ export function RecordEditForm({
                     >
                       {/* Use field.value instead of date */}
                       {field.value ? (
-                        format(field.value, "yyyy-MM-dd")
+                        dateFormat.format(field.value)
                       ) : (
                         <span>Watch Date</span>
                       )}
@@ -330,7 +346,7 @@ export function RecordEditForm({
         >
           <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-medium select-none [&::-webkit-details-marker]:hidden">
             Advanced options
-            <ChevronDownIcon className="size-4 transition-transform group-open:rotate-180" />
+            <ChevronDownIcon className="size-4 motion-safe:transition-transform group-open:rotate-180" />
           </summary>
 
           <FieldGroup className="gap-4 border-t px-4 py-4">
@@ -463,7 +479,7 @@ export function RecordEditForm({
           <AlertDialogTrigger asChild>
             <Button
               variant={"destructive"}
-              className="gap-2 text-red-500 text-opacity-40"
+              className="gap-2"
             >
               <Trash strokeWidth={2} />
               Delete
@@ -471,10 +487,10 @@ export function RecordEditForm({
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogTitle>Delete this record?</AlertDialogTitle>
               <AlertDialogDescription>
                 This action cannot be undone. This will{" "}
-                <span className="text-red-500">permanently</span> delete Post.
+                <span className="text-red-500">permanently</span> delete this record.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter className="flex items-center">
@@ -491,8 +507,8 @@ export function RecordEditForm({
           className="gap-2"
           form="form-rhf-edit-record"
         >
-          <Save strokeWidth={2} />{" "}
-          {!loading ? <span>Save</span> : <Spinner />}
+          {loading ? <Spinner /> : <Save strokeWidth={2} />}
+          {loading ? "Saving…" : "Save"}
         </Button>
       </div>
     </div>

@@ -12,8 +12,8 @@ const TMDB_METADATA_REVALIDATE = 60 * 60 * 24; // 1 day
 
 type SortColumn = "sort_order_anime" | "sort_order_movie" | "sort_order_series";
 
-function pageRange(curentPage: number, postLimit: number) {
-  const page = Math.max(1, curentPage);
+function pageRange(currentPage: number, postLimit: number) {
+  const page = Math.max(1, currentPage);
   return [postLimit * (page - 1), postLimit * page - 1] as const;
 }
 
@@ -42,11 +42,11 @@ function applyRecordFilter<
 }
 
 export async function fetchAllRecords({
-  curentPage = 1,
+  currentPage = 1,
   grid = false,
   filter = "all",
 }: {
-  curentPage?: number;
+  currentPage?: number;
   grid?: boolean;
   filter?: RecordFilter;
 }) {
@@ -57,7 +57,7 @@ export async function fetchAllRecords({
 
   const { data: posts, count, error } = await applyRecordFilter(query, filter)
     .order("watchedat", { ascending: false })
-    .range(...pageRange(curentPage, postLimit));
+    .range(...pageRange(currentPage, postLimit));
 
   if (error) {
     console.error("Database Error:", error);
@@ -96,10 +96,10 @@ export async function fetchRecordCounts(): Promise<
 
 export async function searchRecords({
   searchQuery,
-  curentPage = 1,
+  currentPage = 1,
 }: {
   searchQuery: string | undefined;
-  curentPage?: number;
+  currentPage?: number;
 }) {
   if (!searchQuery) {
     return { posts: undefined, count: 0 };
@@ -114,7 +114,7 @@ export async function searchRecords({
     .select("*", { count: "exact" })
     .ilike("title", `%${escaped}%`)
     .order("watchedat", { ascending: false })
-    .range(...pageRange(curentPage, POSTS_LIMIT));
+    .range(...pageRange(currentPage, POSTS_LIMIT));
 
   if (error) {
     console.error("Database Error:", error);
@@ -126,7 +126,7 @@ export async function searchRecords({
 
 async function fetchSortedRecords(
   column: SortColumn,
-  { curentPage = 1, grid = false }: { curentPage?: number; grid?: boolean },
+  { currentPage = 1, grid = false }: { currentPage?: number; grid?: boolean },
 ) {
   const postLimit = grid ? GRID_POSTS_LIMIT : POSTS_LIMIT;
   const supabase = await createClient();
@@ -136,7 +136,7 @@ async function fetchSortedRecords(
     .select("*", { count: "exact" })
     .not(column, "is", null)
     .order(column, { ascending: true })
-    .range(...pageRange(curentPage, postLimit));
+    .range(...pageRange(currentPage, postLimit));
 
   if (error) {
     console.error("Database Error:", error);
@@ -147,7 +147,7 @@ async function fetchSortedRecords(
 }
 
 export async function fetchSortedAnimeRecords(opts: {
-  curentPage?: number;
+  currentPage?: number;
   grid?: boolean;
 }) {
   return fetchSortedRecords("sort_order_anime", opts);
@@ -220,14 +220,14 @@ export type AnimeTierRecord = Awaited<
 >["posts"][number];
 
 export async function fetchSortedMoviesRecords(opts: {
-  curentPage?: number;
+  currentPage?: number;
   grid?: boolean;
 }) {
   return fetchSortedRecords("sort_order_movie", opts);
 }
 
 export async function fetchSortedSeriesRecords(opts: {
-  curentPage?: number;
+  currentPage?: number;
   grid?: boolean;
 }) {
   return fetchSortedRecords("sort_order_series", opts);

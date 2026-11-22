@@ -8,7 +8,7 @@ export default async function RecordsListTopSeries({
 }: {
   currentPage?: number;
 }) {
-  const { posts, count } = await fetchSortedSeriesRecords({ curentPage: currentPage });
+  const { posts, count } = await fetchSortedSeriesRecords({ currentPage });
 
   if (!posts) {
     return notFound();
@@ -17,12 +17,12 @@ export default async function RecordsListTopSeries({
   return (
     <div className="divide-y-2 divide-dashed">
       <div className="divide-y-2 divide-dashed">
-        {posts.map((post) => {
-          return <RecordListItem key={post.id} record={post} listBadge={false} />;
+        {posts.map((post, index) => {
+          return <RecordListItem key={post.id} record={post} preload={index < 2} listBadge={false} />;
         })}
       </div>
       <Pagination
-        curentPage={currentPage}
+        currentPage={currentPage}
         totalCount={count}
         basePath="/top/series"
       />
